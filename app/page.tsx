@@ -236,9 +236,9 @@ export default function Home() {
   // 게임 대기 화면
   if (!roomId) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600">
-        <div className="bg-white p-8 rounded-2xl shadow-2xl max-w-md w-full">
-          <h1 className="text-4xl font-bold text-center mb-8 text-gray-800">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600 px-4">
+        <div className="bg-white p-4 sm:p-6 md:p-8 rounded-2xl shadow-2xl max-w-md w-full">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-6 sm:mb-8 text-gray-800">
             Connect Four
           </h1>
 
@@ -271,7 +271,7 @@ export default function Home() {
                 <button
                   key={time}
                   onClick={() => setSelectedTurnTime(time)}
-                  className={`py-2 px-4 rounded-lg font-medium transition-colors ${
+                  className={`py-2 px-2 sm:px-4 rounded-lg font-medium text-sm sm:text-base transition-colors ${
                     selectedTurnTime === time
                       ? 'bg-blue-500 text-white'
                       : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
@@ -286,7 +286,7 @@ export default function Home() {
           <button
             onClick={createRoom}
             disabled={!isConnected || isLoading}
-            className="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-4 rounded-lg transition-colors mb-4 disabled:bg-gray-400 disabled:cursor-not-allowed"
+            className="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2.5 sm:py-3 px-4 rounded-lg text-sm sm:text-base transition-colors mb-4 disabled:bg-gray-400 disabled:cursor-not-allowed"
           >
             {isLoading ? '생성 중...' : !isConnected ? '연결 중...' : '새 게임 만들기'}
           </button>
@@ -314,7 +314,7 @@ export default function Home() {
           <button
             onClick={joinRoom}
             disabled={!isConnected || isLoading}
-            className="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-4 rounded-lg transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed mb-4"
+            className="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-2.5 sm:py-3 px-4 rounded-lg text-sm sm:text-base transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed mb-4"
           >
             {isLoading ? '참가 중...' : !isConnected ? '연결 중...' : '방 참가하기'}
           </button>
@@ -322,7 +322,7 @@ export default function Home() {
           <button
             onClick={() => setShowRoomList(!showRoomList)}
             disabled={!isConnected}
-            className="w-full bg-purple-500 hover:bg-purple-600 text-white font-bold py-3 px-4 rounded-lg transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+            className="w-full bg-purple-500 hover:bg-purple-600 text-white font-bold py-2.5 sm:py-3 px-4 rounded-lg text-sm sm:text-base transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
           >
             {showRoomList ? '방 목록 닫기' : '방 목록 보기'}
           </button>
@@ -366,10 +366,10 @@ export default function Home() {
 
   // 게임 화면
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-500 to-purple-600 py-8">
-      <div className="container mx-auto px-4">
+    <div className="min-h-screen bg-gradient-to-br from-blue-500 to-purple-600 py-4 sm:py-6 md:py-8">
+      <div className="container mx-auto px-2 sm:px-4">
         {/* 상단 정보 */}
-        <div className="bg-white rounded-2xl shadow-2xl p-6 mb-6">
+        <div className="bg-white rounded-2xl shadow-2xl p-3 sm:p-4 md:p-6 mb-4 sm:mb-6">
           {/* 연결 상태 표시 */}
           {!isConnected && (
             <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg flex items-center gap-2">
@@ -388,13 +388,13 @@ export default function Home() {
             </div>
           )}
 
-          <div className="flex justify-between items-center mb-4">
+          <div className="flex justify-between items-center mb-3 sm:mb-4">
             <div>
-              <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
+              <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-800 flex items-center gap-2">
                 Connect Four
                 {isConnected && <span className="w-2 h-2 bg-green-500 rounded-full" />}
               </h2>
-              <p className="text-gray-600">
+              <p className="text-sm sm:text-base text-gray-600">
                 방 ID: <span className="font-mono font-bold text-blue-600">{roomId}</span>
               </p>
             </div>
@@ -403,70 +403,70 @@ export default function Home() {
                 navigator.clipboard.writeText(roomId);
                 alert('방 ID가 복사되었습니다!');
               }}
-              className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors"
+              className="bg-blue-500 hover:bg-blue-600 text-white px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm md:text-base transition-colors"
             >
               ID 복사
             </button>
           </div>
 
           {/* 플레이어 정보 */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-2 sm:gap-3 md:gap-4">
             {/* 나 */}
-            <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-lg">
+            <div className="flex items-center gap-2 sm:gap-3 p-2 sm:p-3 md:p-4 bg-gray-50 rounded-lg">
               <div
-                className={`w-8 h-8 rounded-full ${
+                className={`w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 rounded-full ${
                   currentPlayer?.color === 'red' ? 'bg-red-500' : 'bg-yellow-400'
                 }`}
               />
-              <div className="flex-1">
+              <div className="flex-1 min-w-0">
                 {isEditingNickname ? (
-                  <div className="flex gap-2">
+                  <div className="flex gap-1 sm:gap-2">
                     <input
                       type="text"
                       value={inputNickname}
                       onChange={(e) => setInputNickname(e.target.value)}
-                      className="flex-1 px-2 py-1 border border-gray-300 rounded text-gray-800"
+                      className="flex-1 min-w-0 px-1 sm:px-2 py-1 border border-gray-300 rounded text-xs sm:text-sm text-gray-800"
                       maxLength={20}
                     />
                     <button
                       onClick={updateNickname}
-                      className="bg-green-500 text-white px-2 py-1 rounded text-sm"
+                      className="bg-green-500 text-white px-1.5 sm:px-2 py-1 rounded text-xs sm:text-sm"
                     >
                       저장
                     </button>
                   </div>
                 ) : (
-                  <div className="flex items-center gap-2">
-                    <span className="font-bold text-gray-800">{currentPlayer?.nickname || '나'}</span>
+                  <div className="flex items-center gap-1 sm:gap-2">
+                    <span className="font-bold text-xs sm:text-sm md:text-base text-gray-800 truncate">{currentPlayer?.nickname || '나'}</span>
                     <button
                       onClick={() => {
                         setInputNickname(nickname);
                         setIsEditingNickname(true);
                       }}
-                      className="text-blue-500 text-sm hover:underline"
+                      className="text-blue-500 text-xs sm:text-sm hover:underline flex-shrink-0"
                     >
                       수정
                     </button>
                   </div>
                 )}
               </div>
-              {isMyTurn() && <span className="text-green-500 font-bold">●</span>}
+              {isMyTurn() && <span className="text-green-500 font-bold text-sm sm:text-base">●</span>}
             </div>
 
             {/* 상대방 */}
-            <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-lg">
+            <div className="flex items-center gap-2 sm:gap-3 p-2 sm:p-3 md:p-4 bg-gray-50 rounded-lg">
               <div
-                className={`w-8 h-8 rounded-full ${
+                className={`w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 rounded-full ${
                   opponent?.color === 'red' ? 'bg-red-500' : 'bg-yellow-400'
                 }`}
               />
-              <div className="flex-1">
-                <span className="font-bold text-gray-800">
+              <div className="flex-1 min-w-0">
+                <span className="font-bold text-xs sm:text-sm md:text-base text-gray-800 truncate block">
                   {opponent?.nickname || '대기 중...'}
                 </span>
               </div>
               {!isMyTurn() && gameState?.gameStatus === 'playing' && (
-                <span className="text-green-500 font-bold">●</span>
+                <span className="text-green-500 font-bold text-sm sm:text-base">●</span>
               )}
             </div>
           </div>
@@ -491,10 +491,10 @@ export default function Home() {
           )}
 
           {gameState?.gameStatus === 'playing' && (
-            <div className="mt-4 p-4 bg-green-100 border border-green-400 text-green-800 rounded-lg text-center">
-              <div className="flex items-center justify-center gap-4">
-                <span className="text-lg font-bold">남은 시간:</span>
-                <span className={`text-3xl font-bold ${remainingTime <= 5 ? 'text-red-600 animate-pulse' : 'text-green-600'}`}>
+            <div className="mt-3 sm:mt-4 p-3 sm:p-4 bg-green-100 border border-green-400 text-green-800 rounded-lg text-center">
+              <div className="flex items-center justify-center gap-2 sm:gap-4">
+                <span className="text-sm sm:text-base md:text-lg font-bold">남은 시간:</span>
+                <span className={`text-xl sm:text-2xl md:text-3xl font-bold ${remainingTime <= 5 ? 'text-red-600 animate-pulse' : 'text-green-600'}`}>
                   {remainingTime}초
                 </span>
               </div>
@@ -504,8 +504,8 @@ export default function Home() {
 
         {/* 돌림판 모달 */}
         {isSpinning && gameState && firstPlayer !== undefined && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white p-8 rounded-2xl shadow-2xl">
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 px-4">
+            <div className="bg-white p-4 sm:p-6 md:p-8 rounded-2xl shadow-2xl">
               <SpinWheel
                 players={gameState.players}
                 onSpinComplete={onSpinComplete}
@@ -536,26 +536,26 @@ export default function Home() {
 
         {/* 승리 모달 */}
         {showWinModal && gameState?.gameStatus === 'finished' && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white p-8 rounded-2xl shadow-2xl max-w-md w-full text-center">
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 px-4">
+            <div className="bg-white p-6 sm:p-8 rounded-2xl shadow-2xl max-w-md w-full text-center">
               {gameState.winner ? (
                 <>
-                  <h2 className="text-3xl font-bold mb-4 text-gray-800">
+                  <h2 className="text-2xl sm:text-3xl font-bold mb-3 sm:mb-4 text-gray-800">
                     {gameState.winner.socketId === socket?.id ? '🎉 승리!' : '😢 패배'}
                   </h2>
-                  <p className="text-xl text-gray-600 mb-6">
+                  <p className="text-lg sm:text-xl text-gray-600 mb-4 sm:mb-6">
                     {gameState.winner.nickname}님이 승리했습니다!
                   </p>
                 </>
               ) : (
                 <>
-                  <h2 className="text-3xl font-bold mb-4 text-gray-800">무승부!</h2>
-                  <p className="text-xl text-gray-600 mb-6">보드가 가득 찼습니다.</p>
+                  <h2 className="text-2xl sm:text-3xl font-bold mb-3 sm:mb-4 text-gray-800">무승부!</h2>
+                  <p className="text-lg sm:text-xl text-gray-600 mb-4 sm:mb-6">보드가 가득 찼습니다.</p>
                 </>
               )}
               <button
                 onClick={resetGame}
-                className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-lg transition-colors"
+                className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2.5 sm:py-3 px-4 sm:px-6 rounded-lg text-sm sm:text-base transition-colors"
               >
                 다시 하기
               </button>
