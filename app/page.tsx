@@ -233,7 +233,7 @@ export default function Home() {
   };
 
   const hasRequestedRematch = (): boolean => {
-    if (!socket || !gameState || !gameState.rematchRequests) return false;
+    if (!socket || !socket.id || !gameState || !gameState.rematchRequests) return false;
     return gameState.rematchRequests.includes(socket.id);
   };
 
