@@ -43,6 +43,8 @@ class GameRoom {
     this.currentTurnStartTime = null;
     this.remainingTime = turnTime;
     this.isSpinning = false;
+    this.lastMove = null; // 마지막 착수 위치
+    this.winningPositions = []; // 승리한 위치들
   }
 
   addPlayer(socketId, nickname) {
@@ -167,12 +169,16 @@ class GameRoom {
     const color = this.players[playerIndex].color;
     this.board[row][column] = color;
 
-    // 승리 체크
-    const isWin = this.checkWin(row, column, color);
+    // 마지막 착수 위치 저장
+    this.lastMove = { row, column };
 
-    if (isWin) {
+    // 승리 체크
+    const winningPositions = this.checkWin(row, column, color);
+
+    if (winningPositions) {
       this.gameStatus = 'finished';
       this.winner = this.players[playerIndex];
+      this.winningPositions = winningPositions;
       this.clearTurnTimer();
     } else {
       // 무승부 체크 (보드가 가득 참)
@@ -193,7 +199,8 @@ class GameRoom {
       row,
       column,
       color,
-      isWin,
+      isWin: !!winningPositions,
+      winningPositions: winningPositions || [],
       winner: this.winner,
       currentPlayer: this.currentPlayer,
       gameStatus: this.gameStatus
@@ -201,39 +208,64 @@ class GameRoom {
   }
 
   checkWin(row, col, color) {
-    // 4개 연결 체크 (가로, 세로, 대각선)
+    // 4개 연결 체크 (가로, 세로, 대각선) - 승리 위치들 반환
 
     // 가로 체크
     let count = 1;
+    let positions = [{ row, col }];
     // 왼쪽
-    for (let c = col - 1; c >= 0 && this.board[row][c] === color; c--) count++;
+    for (let c = col - 1; c >= 0 && this.board[row][c] === color; c--) {
+      count++;
+      positions.push({ row, col: c });
+    }
     // 오른쪽
-    for (let c = col + 1; c < 7 && this.board[row][c] === color; c++) count++;
-    if (count >= 4) return true;
+    for (let c = col + 1; c < 7 && this.board[row][c] === color; c++) {
+      count++;
+      positions.push({ row, col: c });
+    }
+    if (count >= 4) return positions;
 
     // 세로 체크
     count = 1;
+    positions = [{ row, col }];
     // 아래
-    for (let r = row + 1; r < 6 && this.board[r][col] === color; r++) count++;
-    if (count >= 4) return true;
+    for (let r = row + 1; r < 6 && this.board[r][col] === color; r++) {
+      count++;
+      positions.push({ row: r, col });
+    }
+    if (count >= 4) return positions;
 
     // 대각선 체크 (왼쪽 위 -> 오른쪽 아래)
     count = 1;
+    positions = [{ row, col }];
     // 왼쪽 위
-    for (let r = row - 1, c = col - 1; r >= 0 && c >= 0 && this.board[r][c] === color; r--, c--) count++;
+    for (let r = row - 1, c = col - 1; r >= 0 && c >= 0 && this.board[r][c] === color; r--, c--) {
+      count++;
+      positions.push({ row: r, col: c });
+    }
     // 오른쪽 아래
-    for (let r = row + 1, c = col + 1; r < 6 && c < 7 && this.board[r][c] === color; r++, c++) count++;
-    if (count >= 4) return true;
+    for (let r = row + 1, c = col + 1; r < 6 && c < 7 && this.board[r][c] === color; r++, c++) {
+      count++;
+      positions.push({ row: r, col: c });
+    }
+    if (count >= 4) return positions;
 
     // 대각선 체크 (오른쪽 위 -> 왼쪽 아래)
     count = 1;
+    positions = [{ row, col }];
     // 오른쪽 위
-    for (let r = row - 1, c = col + 1; r >= 0 && c < 7 && this.board[r][c] === color; r--, c++) count++;
+    for (let r = row - 1, c = col + 1; r >= 0 && c < 7 && this.board[r][c] === color; r--, c++) {
+      count++;
+      positions.push({ row: r, col: c });
+    }
     // 왼쪽 아래
-    for (let r = row + 1, c = col - 1; r < 6 && c >= 0 && this.board[r][c] === color; r++, c--) count++;
-    if (count >= 4) return true;
+    for (let r = row + 1, c = col - 1; r < 6 && c >= 0 && this.board[r][c] === color; r++, c--) {
+      count++;
+      positions.push({ row: r, col: c });
+    }
+    if (count >= 4) return positions;
 
-    return false;
+    return null;
   }
 
   resetGame() {
@@ -244,6 +276,8 @@ class GameRoom {
     this.clearTurnTimer();
     this.isSpinning = false;
     this.remainingTime = this.turnTime;
+    this.lastMove = null;
+    this.winningPositions = [];
   }
 
   getState() {
@@ -256,7 +290,9 @@ class GameRoom {
       winner: this.winner,
       turnTime: this.turnTime,
       remainingTime: this.getRemainingTime(),
-      isSpinning: this.isSpinning
+      isSpinning: this.isSpinning,
+      lastMove: this.lastMove,
+      winningPositions: this.winningPositions
     };
   }
 
@@ -466,6 +502,7 @@ app.prepare().then(() => {
         if (result.isWin || result.gameStatus === 'finished') {
           io.to(roomId).emit('gameOver', {
             winner: result.winner,
+            winningPositions: result.winningPositions || [],
             gameState: room.getState()
           });
         }

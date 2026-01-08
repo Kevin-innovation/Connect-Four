@@ -9,6 +9,11 @@ export interface Player {
   color: 'red' | 'yellow';
 }
 
+export interface Position {
+  row: number;
+  col: number;
+}
+
 export interface GameState {
   roomId: string;
   players: Player[];
@@ -19,6 +24,8 @@ export interface GameState {
   turnTime: TurnTime;
   remainingTime?: number;
   isSpinning?: boolean;
+  lastMove?: Position | null;
+  winningPositions?: Position[];
 }
 
 export interface RoomInfo {

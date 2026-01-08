@@ -76,9 +76,12 @@ export default function Home() {
       setIsMoving(false);
     });
 
-    newSocket.on('gameOver', ({ winner, gameState: state }) => {
+    newSocket.on('gameOver', ({ winner, winningPositions, gameState: state }) => {
       setGameState(state);
-      setShowWinModal(true);
+      // 승리 수를 확인할 수 있도록 3초 지연 후 모달 표시
+      setTimeout(() => {
+        setShowWinModal(true);
+      }, 3000);
       setIsMoving(false);
     });
 
@@ -427,12 +430,22 @@ export default function Home() {
                       onChange={(e) => setInputNickname(e.target.value)}
                       className="flex-1 min-w-0 px-1 sm:px-2 py-1 border border-gray-300 rounded text-xs sm:text-sm text-gray-800"
                       maxLength={20}
+                      autoFocus
                     />
                     <button
                       onClick={updateNickname}
                       className="bg-green-500 text-white px-1.5 sm:px-2 py-1 rounded text-xs sm:text-sm"
                     >
                       저장
+                    </button>
+                    <button
+                      onClick={() => {
+                        setIsEditingNickname(false);
+                        setInputNickname(nickname);
+                      }}
+                      className="bg-gray-500 text-white px-1.5 sm:px-2 py-1 rounded text-xs sm:text-sm"
+                    >
+                      취소
                     </button>
                   </div>
                 ) : (
@@ -525,6 +538,8 @@ export default function Home() {
               isMyTurn={isMyTurn()}
               myColor={currentPlayer?.color || null}
               isDisabled={!isConnected || isMoving || gameState.gameStatus !== 'playing'}
+              lastMove={gameState.lastMove}
+              winningPositions={gameState.winningPositions}
             />
             {isMoving && (
               <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-black bg-opacity-75 text-white px-6 py-3 rounded-lg">
