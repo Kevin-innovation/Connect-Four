@@ -380,10 +380,10 @@ export default function Home() {
 
   // 게임 화면
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-500 to-purple-600 py-4 sm:py-6 md:py-8">
-      <div className="container mx-auto px-2 sm:px-4">
+    <div className="min-h-screen bg-gradient-to-br from-blue-500 to-purple-600 py-1 sm:py-3 md:py-4 overflow-y-auto">
+      <div className="container mx-auto px-2 sm:px-3 md:px-4 max-w-[500px]">
         {/* 상단 정보 */}
-        <div className="bg-white rounded-2xl shadow-2xl p-3 sm:p-4 md:p-6 mb-4 sm:mb-6">
+        <div className="bg-white rounded-lg sm:rounded-xl shadow-2xl p-2 sm:p-3 md:p-4 mb-1 sm:mb-2 md:mb-3">
           {/* 연결 상태 표시 */}
           {!isConnected && (
             <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg flex items-center gap-2">
@@ -404,38 +404,38 @@ export default function Home() {
 
           {/* 승리/패배 배너 */}
           {gameState?.gameStatus === 'finished' && (
-            <div className={`mb-4 p-4 sm:p-6 rounded-2xl shadow-lg text-center ${
+            <div className={`mb-2 sm:mb-3 p-3 sm:p-4 md:p-5 rounded-xl sm:rounded-2xl shadow-lg text-center ${
               gameState.winner?.socketId === socket?.id
                 ? 'bg-gradient-to-r from-green-400 to-emerald-500 text-white'
                 : gameState.winner
                 ? 'bg-gradient-to-r from-red-400 to-rose-500 text-white'
                 : 'bg-gradient-to-r from-gray-400 to-slate-500 text-white'
             }`}>
-              <div className="text-3xl sm:text-4xl md:text-5xl font-bold mb-2">
+              <div className="text-2xl sm:text-3xl md:text-4xl font-bold mb-1">
                 {gameState.winner?.socketId === socket?.id ? '🎉 승리!' : gameState.winner ? '😢 패배' : '🤝 무승부'}
               </div>
-              <div className="text-lg sm:text-xl md:text-2xl mb-4">
+              <div className="text-sm sm:text-base md:text-lg mb-2 sm:mb-3">
                 {gameState.winner ? `${gameState.winner.nickname}님이 승리했습니다!` : '보드가 가득 찼습니다.'}
               </div>
 
               {/* 재대결 요청 UI */}
-              <div className="bg-white/20 backdrop-blur-sm rounded-xl p-4 mt-4">
+              <div className="bg-white/20 backdrop-blur-sm rounded-lg sm:rounded-xl p-2 sm:p-3">
                 {hasRequestedRematch() && opponentRequestedRematch() ? (
-                  <div className="text-lg sm:text-xl font-bold animate-pulse">
+                  <div className="text-sm sm:text-base font-bold animate-pulse py-1">
                     잠시 후 게임이 시작됩니다...
                   </div>
                 ) : hasRequestedRematch() ? (
-                  <div className="text-base sm:text-lg">
+                  <div className="text-xs sm:text-sm py-1">
                     재대결을 요청했습니다. 상대방의 응답을 기다리는 중...
                   </div>
                 ) : opponentRequestedRematch() ? (
                   <div>
-                    <div className="text-base sm:text-lg mb-3">
+                    <div className="text-xs sm:text-sm mb-2">
                       {opponent?.nickname}님이 재대결을 요청했습니다!
                     </div>
                     <button
                       onClick={requestRematch}
-                      className="bg-white text-green-600 hover:bg-green-50 font-bold py-3 px-8 rounded-lg text-base sm:text-lg transition-colors shadow-lg"
+                      className="bg-white text-green-600 hover:bg-green-50 font-bold py-2 px-4 sm:px-6 rounded-lg text-sm sm:text-base transition-colors shadow-lg"
                     >
                       재대결 수락
                     </button>
@@ -443,7 +443,7 @@ export default function Home() {
                 ) : (
                   <button
                     onClick={requestRematch}
-                    className="bg-white text-blue-600 hover:bg-blue-50 font-bold py-3 px-8 rounded-lg text-base sm:text-lg transition-colors shadow-lg"
+                    className="bg-white text-blue-600 hover:bg-blue-50 font-bold py-2 px-4 sm:px-6 rounded-lg text-sm sm:text-base transition-colors shadow-lg"
                   >
                     재대결 요청
                   </button>
@@ -452,13 +452,13 @@ export default function Home() {
             </div>
           )}
 
-          <div className="flex justify-between items-center mb-3 sm:mb-4">
+          <div className="flex justify-between items-center mb-2 sm:mb-3">
             <div>
-              <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-800 flex items-center gap-2">
+              <h2 className="text-base sm:text-lg md:text-xl font-bold text-gray-800 flex items-center gap-1">
                 Connect Four
-                {isConnected && <span className="w-2 h-2 bg-green-500 rounded-full" />}
+                {isConnected && <span className="w-1.5 h-1.5 bg-green-500 rounded-full" />}
               </h2>
-              <p className="text-sm sm:text-base text-gray-600">
+              <p className="text-xs sm:text-sm text-gray-600">
                 방 ID: <span className="font-mono font-bold text-blue-600">{roomId}</span>
               </p>
             </div>
@@ -467,91 +467,91 @@ export default function Home() {
                 navigator.clipboard.writeText(roomId);
                 alert('방 ID가 복사되었습니다!');
               }}
-              className="bg-blue-500 hover:bg-blue-600 text-white px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm md:text-base transition-colors"
+              className="bg-blue-500 hover:bg-blue-600 text-white px-2 sm:px-3 py-1 sm:py-1.5 rounded text-xs sm:text-sm transition-colors"
             >
               ID 복사
             </button>
           </div>
 
           {/* 플레이어 정보 */}
-          <div className="grid grid-cols-2 gap-2 sm:gap-3 md:gap-4">
+          <div className="grid grid-cols-2 gap-1.5 sm:gap-2">
             {/* 나 */}
-            <div className="flex items-center gap-2 sm:gap-3 p-2 sm:p-3 md:p-4 bg-gray-50 rounded-lg">
+            <div className="flex items-center gap-1.5 sm:gap-2 p-1.5 sm:p-2 bg-gray-50 rounded">
               <div
-                className={`w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 rounded-full ${
+                className={`w-5 h-5 sm:w-6 sm:h-6 rounded-full flex-shrink-0 ${
                   currentPlayer?.color === 'red' ? 'bg-red-500' : 'bg-yellow-400'
                 }`}
               />
               <div className="flex-1 min-w-0">
                 {isEditingNickname ? (
-                  <div className="flex gap-1 sm:gap-2">
+                  <div className="flex gap-1">
                     <input
                       type="text"
                       value={inputNickname}
                       onChange={(e) => setInputNickname(e.target.value)}
-                      className="flex-1 min-w-0 px-1 sm:px-2 py-1 border border-gray-300 rounded text-xs sm:text-sm text-gray-800"
+                      className="flex-1 min-w-0 px-1 py-0.5 border border-gray-300 rounded text-xs text-gray-800"
                       maxLength={20}
                       autoFocus
                     />
                     <button
                       onClick={updateNickname}
-                      className="bg-green-500 text-white px-1.5 sm:px-2 py-1 rounded text-xs sm:text-sm"
+                      className="bg-green-500 text-white px-1 py-0.5 rounded text-xs"
                     >
-                      저장
+                      ✓
                     </button>
                     <button
                       onClick={() => {
                         setIsEditingNickname(false);
                         setInputNickname(nickname);
                       }}
-                      className="bg-gray-500 text-white px-1.5 sm:px-2 py-1 rounded text-xs sm:text-sm"
+                      className="bg-gray-500 text-white px-1 py-0.5 rounded text-xs"
                     >
-                      취소
+                      ✕
                     </button>
                   </div>
                 ) : (
-                  <div className="flex items-center gap-1 sm:gap-2">
-                    <span className="font-bold text-xs sm:text-sm md:text-base text-gray-800 truncate">{currentPlayer?.nickname || '나'}</span>
+                  <div className="flex items-center gap-1">
+                    <span className="font-bold text-xs sm:text-sm text-gray-800 truncate">{currentPlayer?.nickname || '나'}</span>
                     <button
                       onClick={() => {
                         setInputNickname(nickname);
                         setIsEditingNickname(true);
                       }}
-                      className="text-blue-500 text-xs sm:text-sm hover:underline flex-shrink-0"
+                      className="text-blue-500 text-xs hover:underline flex-shrink-0"
                     >
                       수정
                     </button>
                   </div>
                 )}
               </div>
-              {isMyTurn() && <span className="text-green-500 font-bold text-sm sm:text-base">●</span>}
+              {isMyTurn() && <span className="text-green-500 font-bold text-xs sm:text-sm flex-shrink-0">●</span>}
             </div>
 
             {/* 상대방 */}
-            <div className="flex items-center gap-2 sm:gap-3 p-2 sm:p-3 md:p-4 bg-gray-50 rounded-lg">
+            <div className="flex items-center gap-1.5 sm:gap-2 p-1.5 sm:p-2 bg-gray-50 rounded">
               <div
-                className={`w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 rounded-full ${
+                className={`w-5 h-5 sm:w-6 sm:h-6 rounded-full flex-shrink-0 ${
                   opponent?.color === 'red' ? 'bg-red-500' : 'bg-yellow-400'
                 }`}
               />
               <div className="flex-1 min-w-0">
-                <span className="font-bold text-xs sm:text-sm md:text-base text-gray-800 truncate block">
+                <span className="font-bold text-xs sm:text-sm text-gray-800 truncate block">
                   {opponent?.nickname || '대기 중...'}
                 </span>
               </div>
               {!isMyTurn() && gameState?.gameStatus === 'playing' && (
-                <span className="text-green-500 font-bold text-sm sm:text-base">●</span>
+                <span className="text-green-500 font-bold text-xs sm:text-sm flex-shrink-0">●</span>
               )}
             </div>
           </div>
 
           {/* 게임 상태 */}
           {gameState?.gameStatus === 'waiting' && gameState.players.length === 2 && (
-            <div className="mt-4 p-4 bg-yellow-100 border border-yellow-400 text-yellow-800 rounded-lg text-center">
-              <p className="mb-3">플레이어가 모두 모였습니다! 돌림판을 돌려 선공을 결정하세요.</p>
+            <div className="mt-2 p-2 sm:p-3 bg-yellow-100 border border-yellow-400 text-yellow-800 rounded text-center">
+              <p className="mb-2 text-xs sm:text-sm">플레이어가 모두 모였습니다! 돌림판 돌려 선공을 결정하세요.</p>
               <button
                 onClick={spinWheel}
-                className="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-6 rounded-lg transition-colors"
+                className="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-1.5 px-4 rounded text-sm transition-colors"
               >
                 돌림판 돌리기
               </button>
@@ -559,16 +559,16 @@ export default function Home() {
           )}
 
           {gameState?.gameStatus === 'waiting' && gameState.players.length < 2 && (
-            <div className="mt-4 p-4 bg-blue-100 border border-blue-400 text-blue-800 rounded-lg text-center">
+            <div className="mt-2 p-2 sm:p-3 bg-blue-100 border border-blue-400 text-blue-800 rounded text-center text-xs sm:text-sm">
               상대방을 기다리는 중입니다...
             </div>
           )}
 
           {gameState?.gameStatus === 'playing' && (
-            <div className="mt-3 sm:mt-4 p-3 sm:p-4 bg-green-100 border border-green-400 text-green-800 rounded-lg text-center">
-              <div className="flex items-center justify-center gap-2 sm:gap-4">
-                <span className="text-sm sm:text-base md:text-lg font-bold">남은 시간:</span>
-                <span className={`text-xl sm:text-2xl md:text-3xl font-bold ${remainingTime <= 5 ? 'text-red-600 animate-pulse' : 'text-green-600'}`}>
+            <div className="mt-2 p-2 sm:p-3 bg-green-100 border border-green-400 text-green-800 rounded text-center">
+              <div className="flex items-center justify-center gap-2">
+                <span className="text-xs sm:text-sm font-bold">남은 시간:</span>
+                <span className={`text-lg sm:text-xl font-bold ${remainingTime <= 5 ? 'text-red-600 animate-pulse' : 'text-green-600'}`}>
                   {remainingTime}초
                 </span>
               </div>

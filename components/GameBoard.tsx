@@ -75,24 +75,24 @@ export default function GameBoard({ board, onColumnClick, isMyTurn, myColor, isD
   };
 
   return (
-    <div className="flex flex-col items-center gap-2">
+    <div className="flex flex-col items-center gap-1 sm:gap-2 w-full max-w-[380px] sm:max-w-[450px] mx-auto">
       {/* 턴 인디케이터 화살표 */}
       {isMyTurn && !isDisabled && (
-        <div className="text-center">
-          <div className="text-green-500 text-4xl sm:text-5xl md:text-6xl font-bold animate-bounce">
+        <div className="text-center py-0.5 sm:py-1">
+          <div className="text-green-500 text-2xl sm:text-3xl md:text-4xl font-bold animate-bounce">
             ▼
           </div>
-          <div className="text-base sm:text-lg md:text-xl font-bold text-white mt-1">당신의 차례</div>
+          <div className="text-xs sm:text-sm md:text-base font-bold text-white">당신의 차례</div>
         </div>
       )}
 
-      <div className="relative bg-blue-600 p-2 sm:p-3 md:p-4 rounded-lg shadow-2xl select-none">
+      <div className="relative bg-blue-600 p-1 sm:p-1.5 md:p-2 rounded-md sm:rounded-lg shadow-2xl select-none w-full">
         {/* 호버 인디케이터 레이어 */}
-        <div className="grid grid-cols-7 gap-1 sm:gap-1.5 md:gap-2 mb-1 sm:mb-1.5 md:mb-2">
+        <div className="grid grid-cols-7 gap-0.5 sm:gap-1 mb-0.5 sm:mb-1">
           {Array.from({ length: 7 }).map((_, colIndex) => (
             <div
               key={colIndex}
-              className={`w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 lg:w-16 lg:h-16 rounded-full flex items-center justify-center transition-all duration-200 touch-manipulation ${
+              className={`aspect-square w-full max-w-[50px] sm:max-w-[60px] rounded-full flex items-center justify-center transition-all duration-200 touch-manipulation ${
                 isMyTurn && !isDisabled && !isClicking
                   ? 'cursor-pointer active:scale-95'
                   : 'cursor-not-allowed'
@@ -125,14 +125,14 @@ export default function GameBoard({ board, onColumnClick, isMyTurn, myColor, isD
             >
               {/* 선택 표시 */}
               {selectedColumn === colIndex && isMyTurn && !isDisabled && !isClicking && (
-                <div className="text-white text-xs sm:text-sm font-bold pointer-events-none">확정?</div>
+                <div className="text-white text-[10px] sm:text-xs font-bold pointer-events-none">확정?</div>
               )}
             </div>
           ))}
         </div>
 
         {/* 게임 보드 */}
-        <div className="grid grid-cols-7 gap-1 sm:gap-1.5 md:gap-2 pointer-events-none">
+        <div className="grid grid-cols-7 gap-0.5 sm:gap-1 pointer-events-none">
           {board.map((row, rowIndex) =>
             row.map((cell, colIndex) => {
               const isWinning = isWinningPosition(rowIndex, colIndex);
@@ -141,12 +141,12 @@ export default function GameBoard({ board, onColumnClick, isMyTurn, myColor, isD
               return (
                 <div
                   key={`${rowIndex}-${colIndex}`}
-                  className={`w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 lg:w-16 lg:h-16 bg-blue-800 rounded-full flex items-center justify-center shadow-inner ${
-                    isWinning ? 'ring-4 ring-green-400 animate-pulse' : isLast ? 'ring-3 ring-white' : ''
+                  className={`aspect-square w-full max-w-[50px] sm:max-w-[60px] bg-blue-800 rounded-full flex items-center justify-center shadow-inner ${
+                    isWinning ? 'ring-2 sm:ring-3 ring-green-400 animate-pulse' : isLast ? 'ring-1 sm:ring-2 ring-white' : ''
                   }`}
                 >
                   <div
-                    className={`w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 lg:w-14 lg:h-14 rounded-full transition-all duration-300 ${getCellColor(
+                    className={`w-[85%] h-[85%] rounded-full transition-all duration-300 ${getCellColor(
                       cell
                     )} ${
                       animatingCell?.row === rowIndex && animatingCell?.col === colIndex
@@ -163,8 +163,8 @@ export default function GameBoard({ board, onColumnClick, isMyTurn, myColor, isD
 
       {/* 턴 인디케이터 - 하단 */}
       {!isMyTurn && (
-        <div className="mt-2 sm:mt-3 md:mt-4 text-center px-4">
-          <div className="text-base sm:text-lg md:text-xl font-bold text-gray-200">상대방의 차례입니다</div>
+        <div className="mt-0.5 sm:mt-1 text-center px-2">
+          <div className="text-xs sm:text-sm font-bold text-gray-200">상대방의 차례입니다</div>
         </div>
       )}
     </div>
