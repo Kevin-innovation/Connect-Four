@@ -172,9 +172,19 @@ class GameRoom {
 }
 
 app.prepare().then(() => {
+  console.log('Next.js app prepared successfully');
+
   const httpServer = createServer(async (req, res) => {
     try {
       const parsedUrl = parse(req.url, true);
+
+      // Health check endpoint for Railway
+      if (parsedUrl.pathname === '/health' || parsedUrl.pathname === '/api/health') {
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ status: 'ok', timestamp: new Date().toISOString() }));
+        return;
+      }
+
       await handle(req, res, parsedUrl);
     } catch (err) {
       console.error('Error occurred handling', req.url, err);
