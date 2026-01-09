@@ -142,7 +142,7 @@ export default function GameBoard({ board, onColumnClick, isMyTurn, myColor, isD
                 <div
                   key={`${rowIndex}-${colIndex}`}
                   className={`aspect-square w-full max-w-[50px] sm:max-w-[60px] bg-blue-800 rounded-full flex items-center justify-center shadow-inner ${
-                    isWinning ? 'ring-2 sm:ring-3 ring-green-400 animate-pulse' : isLast ? 'ring-2 sm:ring-3 ring-green-400' : ''
+                    isWinning ? 'ring-2 sm:ring-3 ring-green-400 animate-pulse' : isLast ? 'ring-3 sm:ring-4 ring-cyan-400 shadow-lg shadow-cyan-400/50' : ''
                   }`}
                 >
                   <div
