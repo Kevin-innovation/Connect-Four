@@ -1,6 +1,7 @@
-# Connect Four Online (커넥트 포 온라인)
+# Connect Four BY KEVIN
 
 2명의 플레이어가 실시간으로 함께 플레이할 수 있는 온라인 Connect Four (사목 게임) 게임입니다.
+Kevin이 제작한 프리미엄 온라인 보드 게임입니다.
 
 🎮 **[지금 플레이하기](https://crossomok-production.up.railway.app/)**
 
@@ -38,6 +39,10 @@
 - 🎨 **애니메이션**: 부드러운 돌 떨어짐 효과
 - 📱 **반응형 디자인**: 모바일/태블릿/PC 모든 화면 크기 지원
 - ⚡ **실시간 상태 표시**: 연결 상태, 턴 표시, 타이머
+- 🎪 **브랜딩 업데이트**: "Connect Four BY KEVIN" 브랜딩 적용
+- 📝 **게임 설명 추가**: 메인 화면에 "4개의 돌을 연속으로 놓아 승리하세요!" 설명 표시
+- ⬅️ **간결한 네비게이션**: 뒤로가기 버튼을 화살표 아이콘(←)으로 최적화
+- 🎯 **UI 정리**: 불필요한 방 ID 복사 버튼 제거로 깔끔한 레이아웃 구현
 
 ## 기술 스택
 
@@ -101,7 +106,7 @@ npm run dev
 ## 프로젝트 구조
 
 ```
-c_omok/
+Connect-Four/
 ├── app/
 │   ├── layout.tsx          # 레이아웃
 │   ├── page.tsx            # 메인 게임 페이지 (모든 게임 로직)
@@ -114,6 +119,7 @@ c_omok/
 │   └── types.ts            # TypeScript 타입 정의
 ├── server.js               # Socket.io 서버 (게임 로직, 타이머 관리)
 ├── package.json
+├── railway.json            # Railway 배포 설정
 └── tsconfig.json
 ```
 
@@ -242,10 +248,51 @@ git push
 - 자동 에러 메시지 제거 (3초)
 - 연결 상태 표시
 
+## 📌 개발 체크포인트
+
+### VER 2.0 완료 (2026-01-09)
+- ✅ **브랜딩 업데이트**: "Connect Four BY KEVIN" 브랜드 적용
+- ✅ **UI/UX 개선**:
+  - 메인 타이틀 폰트 크기 최적화
+  - 게임 설명 텍스트 추가
+  - 뒤로가기 버튼 아이콘화 (←)
+  - 불필요한 방 ID 복사 버튼 제거
+- ✅ **프로젝트 구조 정리**:
+  - 폴더명 변경: `c_omok` → `Connect-Four`
+  - GitHub 레포지토리명 변경: `cross_omok` → `Connect-Four`
+- ✅ **Railway 배포**: 자동 배포 설정 및 운영 중
+- ✅ **README 최신화**: 모든 변경사항 문서화 완료
+
+### VER 2.0 주요 기능 (이전 완료)
+- ✅ 2클릭 확인 시스템
+- ✅ 승리 수 하이라이트
+- ✅ 마지막 수 표시
+- ✅ 턴 인디케이터 화살표
+- ✅ 승리/패배 배너
+- ✅ 상호 재대결 확인
+- ✅ 아이폰 최적화
+- ✅ 방 목록 기능
+- ✅ 턴 타이머 (10/20/30초)
+- ✅ 선공 결정 룰렛
+
+### VER 1.0 기본 기능
+- ✅ 실시간 멀티플레이어
+- ✅ Socket.io WebSocket 연결
+- ✅ 게임 로직 구현
+- ✅ 반응형 디자인
+- ✅ Railway 배포
+
+### 향후 계획
+- 🔲 채팅 기능
+- 🔲 게임 통계 및 전적
+- 🔲 랭킹 시스템
+- 🔲 커스텀 테마
+
 ## 라이선스
 
 MIT
 
 ## 개발자
 
-Created with Next.js, Socket.io, and TypeScript
+**Connect Four BY KEVIN**
+Created with Next.js, Socket.io, and TypeScript by Kevin
