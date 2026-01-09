@@ -141,8 +141,12 @@ export default function GameBoard({ board, onColumnClick, isMyTurn, myColor, isD
               return (
                 <div
                   key={`${rowIndex}-${colIndex}`}
-                  className={`aspect-square w-full max-w-[50px] sm:max-w-[60px] bg-blue-800 rounded-full flex items-center justify-center shadow-inner ${
-                    isWinning ? 'ring-2 sm:ring-3 ring-green-400 animate-pulse' : isLast ? 'ring-3 sm:ring-4 ring-cyan-400 shadow-lg shadow-cyan-400/50' : ''
+                  className={`aspect-square w-full max-w-[50px] sm:max-w-[60px] rounded-full flex items-center justify-center shadow-inner ${
+                    isWinning
+                      ? 'bg-green-400 ring-2 sm:ring-3 ring-green-400 animate-pulse'
+                      : isLast
+                        ? 'bg-blue-400'
+                        : 'bg-blue-800'
                   }`}
                 >
                   <div
@@ -152,7 +156,7 @@ export default function GameBoard({ board, onColumnClick, isMyTurn, myColor, isD
                       animatingCell?.row === rowIndex && animatingCell?.col === colIndex
                         ? 'scale-0'
                         : 'scale-100'
-                    } ${isWinning ? 'shadow-lg shadow-green-500/50' : ''}`}
+                    } ${isWinning ? 'shadow-lg shadow-green-500/50' : isLast && !isWinning ? 'border-4 sm:border-[5px] border-blue-400' : ''}`}
                   />
                 </div>
               );
