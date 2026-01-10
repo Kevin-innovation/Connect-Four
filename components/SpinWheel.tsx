@@ -19,7 +19,7 @@ export default function SpinWheel({ players, onSpinComplete, isSpinning, firstPl
   });
 
   useEffect(() => {
-    // 새로운 스핀 시작 감지: isSpinning이 false->true로 변경되고 firstPlayer가 있을 때
+    // 새로운 스핀 시작 감지
     const isNewSpin =
       isSpinning &&
       firstPlayer !== undefined &&
@@ -27,11 +27,20 @@ export default function SpinWheel({ players, onSpinComplete, isSpinning, firstPl
 
     if (isNewSpin) {
       console.log('SpinWheel starting NEW animation, firstPlayer:', firstPlayer);
-      setIsAnimating(true);
 
-      // 3초 동안 회전 애니메이션 - 이전 회전에 누적
-      const additionalRotation = 360 * 5 + (firstPlayer === 0 ? 0 : 180);
-      setRotation(prev => prev + additionalRotation);
+      // 1단계: transition 끄고 초기 위치로 리셋
+      setIsAnimating(false);
+      setRotation(0);
+
+      // 2단계: 다음 프레임에서 transition 켜고 회전 시작
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          setIsAnimating(true);
+          const targetRotation = 360 * 5 + (firstPlayer === 0 ? 0 : 180);
+          console.log('Setting rotation to:', targetRotation);
+          setRotation(targetRotation);
+        });
+      });
 
       const timer = setTimeout(() => {
         console.log('SpinWheel animation complete');
@@ -47,6 +56,7 @@ export default function SpinWheel({ players, onSpinComplete, isSpinning, firstPl
 
     // 스핀 종료 감지
     if (!isSpinning && prevSpinRef.current.isSpinning) {
+      console.log('SpinWheel ended, resetting prevSpinRef');
       prevSpinRef.current = { isSpinning: false, firstPlayer: undefined };
     }
   }, [isSpinning, firstPlayer, onSpinComplete]);
