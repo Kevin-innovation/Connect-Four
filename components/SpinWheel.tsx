@@ -1,7 +1,7 @@
 'use client';
 
 import { Player } from '@/lib/types';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 
 interface SpinWheelProps {
   players: Player[];
@@ -13,13 +13,20 @@ interface SpinWheelProps {
 export default function SpinWheel({ players, onSpinComplete, isSpinning, firstPlayer }: SpinWheelProps) {
   const [rotation, setRotation] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
-  const [hasSpun, setHasSpun] = useState(false);
+  const prevSpinRef = useRef<{ isSpinning: boolean; firstPlayer?: number }>({
+    isSpinning: false,
+    firstPlayer: undefined
+  });
 
   useEffect(() => {
-    // isSpinning이 true이고 firstPlayer가 정의되어 있으며, 아직 회전하지 않았을 때만 실행
-    if (isSpinning && firstPlayer !== undefined && !hasSpun) {
-      console.log('SpinWheel starting animation, firstPlayer:', firstPlayer);
-      setHasSpun(true);
+    // 새로운 스핀 시작 감지: isSpinning이 false->true로 변경되고 firstPlayer가 있을 때
+    const isNewSpin =
+      isSpinning &&
+      firstPlayer !== undefined &&
+      (!prevSpinRef.current.isSpinning || prevSpinRef.current.firstPlayer !== firstPlayer);
+
+    if (isNewSpin) {
+      console.log('SpinWheel starting NEW animation, firstPlayer:', firstPlayer);
       setIsAnimating(true);
 
       // 3초 동안 회전 애니메이션 - 이전 회전에 누적
@@ -27,14 +34,22 @@ export default function SpinWheel({ players, onSpinComplete, isSpinning, firstPl
       setRotation(prev => prev + additionalRotation);
 
       const timer = setTimeout(() => {
+        console.log('SpinWheel animation complete');
         setIsAnimating(false);
         onSpinComplete(firstPlayer);
-        setHasSpun(false); // 다음 회전을 위해 리셋
       }, 3000);
+
+      // 현재 값 저장
+      prevSpinRef.current = { isSpinning, firstPlayer };
 
       return () => clearTimeout(timer);
     }
-  }, [isSpinning, firstPlayer, hasSpun, onSpinComplete]);
+
+    // 스핀 종료 감지
+    if (!isSpinning && prevSpinRef.current.isSpinning) {
+      prevSpinRef.current = { isSpinning: false, firstPlayer: undefined };
+    }
+  }, [isSpinning, firstPlayer, onSpinComplete]);
 
   const player1 = players[0];
   const player2 = players[1];

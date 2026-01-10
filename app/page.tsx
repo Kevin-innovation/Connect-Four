@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { initSocket, getSocket } from '@/lib/socket';
 import GameBoard from '@/components/GameBoard';
 import SpinWheel from '@/components/SpinWheel';
@@ -207,10 +207,11 @@ export default function Home() {
     socket.emit('addAI', { roomId });
   };
 
-  const onSpinComplete = (firstPlayer: number) => {
+  const onSpinComplete = useCallback((firstPlayer: number) => {
+    console.log('onSpinComplete called, closing spin wheel');
     setIsSpinning(false);
     setFirstPlayer(undefined);
-  };
+  }, []);
 
   const handleColumnClick = (column: number) => {
     if (!socket || !roomId || !isConnected || isMoving) return;
