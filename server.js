@@ -330,6 +330,13 @@ class GameRoom {
     const aiColor = this.players[this.currentPlayer].color;
     const opponentColor = aiColor === 'red' ? 'yellow' : 'red';
 
+    // 0. 첫 수는 무조건 중앙 (4번째 열 = 인덱스 3)
+    const isEmpty = this.board.every(row => row.every(cell => cell === null));
+    if (isEmpty) {
+      console.log('AI first move: choosing center column (index 3)');
+      return 3; // 중앙 열
+    }
+
     // 1. 즉시 승리 가능하면 승리
     for (let col = 0; col < 7; col++) {
       const row = this.getNextEmptyRow(col);
