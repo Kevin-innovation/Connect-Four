@@ -7,6 +7,7 @@ export interface Player {
   socketId: string;
   nickname: string;
   color: 'red' | 'yellow';
+  isAI?: boolean;
 }
 
 export interface Position {

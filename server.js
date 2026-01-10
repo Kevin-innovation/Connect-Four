@@ -46,6 +46,8 @@ class GameRoom {
     this.lastMove = null; // 마지막 착수 위치
     this.winningPositions = []; // 승리한 위치들
     this.rematchRequests = []; // 재대결 요청한 플레이어들
+    this.hasAI = false; // AI 플레이어 존재 여부
+    this.aiDifficulty = 'easy'; // easy, medium, hard
   }
 
   addPlayer(socketId, nickname) {
@@ -55,7 +57,8 @@ class GameRoom {
     this.players.push({
       socketId,
       nickname: nickname || `게스트${this.players.length + 1}`,
-      color: this.players.length === 0 ? 'red' : 'yellow'
+      color: this.players.length === 0 ? 'red' : 'yellow',
+      isAI: false
     });
 
     // 2명이 모이면 돌림판 상태로 변경 (자동으로 돌림판 시작하지 않음)
@@ -63,6 +66,26 @@ class GameRoom {
       this.gameStatus = 'waiting'; // 돌림판은 명시적으로 시작
     }
     return true;
+  }
+
+  // AI 플레이어 추가
+  addAI(difficulty = 'easy') {
+    if (this.players.length >= 2) {
+      return { success: false, error: '방이 가득 찼습니다' };
+    }
+
+    this.players.push({
+      socketId: 'AI_PLAYER',
+      nickname: difficulty === 'easy' ? 'AI (쉬움) 🤖' : difficulty === 'medium' ? 'AI (보통) 🤖' : 'AI (어려움) 🤖',
+      color: this.players.length === 0 ? 'red' : 'yellow',
+      isAI: true
+    });
+
+    this.hasAI = true;
+    this.aiDifficulty = difficulty;
+    this.gameStatus = 'waiting'; // 돌림판 대기
+
+    return { success: true };
   }
 
   // 돌림판 돌리기
@@ -304,6 +327,89 @@ class GameRoom {
     this.rematchRequests = [];
   }
 
+  // AI 착수 로직
+  getAIMove() {
+    const difficulty = this.aiDifficulty;
+
+    if (difficulty === 'easy') {
+      return this.getRandomMove();
+    } else if (difficulty === 'medium') {
+      return this.getMediumMove();
+    } else {
+      return this.getHardMove();
+    }
+  }
+
+  // 쉬움: 랜덤 착수
+  getRandomMove() {
+    const availableColumns = [];
+    for (let col = 0; col < 7; col++) {
+      if (this.board[0][col] === null) {
+        availableColumns.push(col);
+      }
+    }
+    if (availableColumns.length === 0) return null;
+    return availableColumns[Math.floor(Math.random() * availableColumns.length)];
+  }
+
+  // 보통: 승리/방어 우선, 그 외 중앙 선호
+  getMediumMove() {
+    const aiColor = this.players[this.currentPlayer].color;
+    const opponentColor = aiColor === 'red' ? 'yellow' : 'red';
+
+    // 1. 내가 이길 수 있는 수 찾기
+    for (let col = 0; col < 7; col++) {
+      const row = this.getNextEmptyRow(col);
+      if (row === -1) continue;
+
+      this.board[row][col] = aiColor;
+      if (this.checkWin(row, col, aiColor)) {
+        this.board[row][col] = null;
+        return col;
+      }
+      this.board[row][col] = null;
+    }
+
+    // 2. 상대가 이길 수 있는 수 막기
+    for (let col = 0; col < 7; col++) {
+      const row = this.getNextEmptyRow(col);
+      if (row === -1) continue;
+
+      this.board[row][col] = opponentColor;
+      if (this.checkWin(row, col, opponentColor)) {
+        this.board[row][col] = null;
+        return col;
+      }
+      this.board[row][col] = null;
+    }
+
+    // 3. 중앙 선호
+    const centerColumns = [3, 2, 4, 1, 5, 0, 6];
+    for (const col of centerColumns) {
+      if (this.board[0][col] === null) {
+        return col;
+      }
+    }
+
+    return this.getRandomMove();
+  }
+
+  // 어려움: Minimax 알고리즘 (간단한 버전)
+  getHardMove() {
+    // 현재는 medium과 동일, 추후 업그레이드 가능
+    return this.getMediumMove();
+  }
+
+  // 다음 빈 행 찾기
+  getNextEmptyRow(column) {
+    for (let row = 5; row >= 0; row--) {
+      if (this.board[row][column] === null) {
+        return row;
+      }
+    }
+    return -1;
+  }
+
   getState() {
     return {
       roomId: this.roomId,
@@ -422,6 +528,45 @@ app.prepare().then(() => {
     }
   }
 
+  // AI 자동 착수
+  function makeAIMove(roomId, room) {
+    if (!room.hasAI || room.gameStatus !== 'playing') return;
+
+    const currentPlayer = room.players[room.currentPlayer];
+    if (!currentPlayer || !currentPlayer.isAI) return;
+
+    // AI 생각하는 시간 (1-2초 랜덤)
+    const thinkTime = 1000 + Math.random() * 1000;
+
+    setTimeout(() => {
+      if (!rooms.has(roomId) || room.gameStatus !== 'playing') return;
+
+      const column = room.getAIMove();
+      if (column === null) return;
+
+      const result = room.makeMove('AI_PLAYER', column);
+      if (result.success) {
+        io.to(roomId).emit('moveMade', {
+          row: result.row,
+          column: result.column,
+          color: result.color,
+          gameState: room.getState()
+        });
+
+        if (result.isWin || result.gameStatus === 'finished') {
+          io.to(roomId).emit('gameOver', {
+            winner: result.winner,
+            winningPositions: result.winningPositions || [],
+            gameState: room.getState()
+          });
+        } else {
+          // AI가 착수한 후 다음 턴이 또 AI면 재귀 호출
+          makeAIMove(roomId, room);
+        }
+      }
+    }, thinkTime);
+  }
+
   io.on('connection', (socket) => {
     console.log('Client connected:', socket.id);
 
@@ -470,6 +615,23 @@ app.prepare().then(() => {
       socket.emit('roomList', roomList);
     });
 
+    // AI 플레이어 추가
+    socket.on('addAI', ({ roomId, difficulty = 'easy' }) => {
+      const room = rooms.get(roomId);
+      if (!room) {
+        socket.emit('error', { message: '방을 찾을 수 없습니다' });
+        return;
+      }
+
+      const result = room.addAI(difficulty);
+      if (result.success) {
+        io.to(roomId).emit('gameState', room.getState());
+        console.log(`AI player added to room ${roomId} with ${difficulty} difficulty`);
+      } else {
+        socket.emit('error', { message: result.error });
+      }
+    });
+
     // 돌림판 시작
     socket.on('spinWheel', (roomId) => {
       const room = rooms.get(roomId);
@@ -493,6 +655,9 @@ app.prepare().then(() => {
 
           // 타이머 시작 및 주기적 업데이트
           startRoomTimer(roomId, room);
+
+          // AI 턴이면 자동 착수
+          makeAIMove(roomId, room);
         }, 3000);
       } else {
         socket.emit('error', { message: result.error });
@@ -530,6 +695,9 @@ app.prepare().then(() => {
             winningPositions: result.winningPositions || [],
             gameState: room.getState()
           });
+        } else {
+          // AI 턴이면 자동 착수
+          makeAIMove(roomId, room);
         }
       } else {
         socket.emit('error', { message: result.error });
