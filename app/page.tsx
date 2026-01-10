@@ -25,7 +25,6 @@ export default function Home() {
   const [firstPlayer, setFirstPlayer] = useState<number | undefined>();
   const [roomList, setRoomList] = useState<RoomInfo[]>([]);
   const [showRoomList, setShowRoomList] = useState<boolean>(false);
-  const [aiDifficulty, setAiDifficulty] = useState<'easy' | 'medium' | 'hard'>('easy');
 
   // 에러 자동 해제
   useEffect(() => {
@@ -198,7 +197,7 @@ export default function Home() {
 
   const addAI = () => {
     if (!socket || !roomId) return;
-    socket.emit('addAI', { roomId, difficulty: aiDifficulty });
+    socket.emit('addAI', { roomId });
   };
 
   const onSpinComplete = (firstPlayer: number) => {
@@ -587,26 +586,6 @@ export default function Home() {
             <div className="mt-2 p-2 sm:p-3 bg-blue-100 border border-blue-400 text-blue-800 rounded text-center">
               <p className="text-xs sm:text-sm mb-3">상대방을 기다리는 중입니다...</p>
 
-              {/* AI 난이도 선택 */}
-              <div className="mb-3">
-                <p className="text-xs font-bold mb-2">AI 난이도 선택:</p>
-                <div className="flex gap-2 justify-center">
-                  {(['easy', 'medium', 'hard'] as const).map((difficulty) => (
-                    <button
-                      key={difficulty}
-                      onClick={() => setAiDifficulty(difficulty)}
-                      className={`py-1.5 px-3 rounded text-xs font-medium transition-colors ${
-                        aiDifficulty === difficulty
-                          ? 'bg-blue-600 text-white'
-                          : 'bg-white text-blue-800 hover:bg-blue-50'
-                      }`}
-                    >
-                      {difficulty === 'easy' ? '쉬움' : difficulty === 'medium' ? '보통' : '어려움'}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
               {/* AI 대전 버튼 */}
               <button
                 onClick={addAI}
@@ -614,6 +593,7 @@ export default function Home() {
               >
                 🤖 AI와 대전하기
               </button>
+              <p className="text-xs text-blue-700 mt-2">AI는 최고 난이도로 플레이합니다</p>
             </div>
           )}
 

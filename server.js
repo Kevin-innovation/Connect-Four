@@ -47,7 +47,6 @@ class GameRoom {
     this.winningPositions = []; // 승리한 위치들
     this.rematchRequests = []; // 재대결 요청한 플레이어들
     this.hasAI = false; // AI 플레이어 존재 여부
-    this.aiDifficulty = 'easy'; // easy, medium, hard
   }
 
   addPlayer(socketId, nickname) {
@@ -69,20 +68,19 @@ class GameRoom {
   }
 
   // AI 플레이어 추가
-  addAI(difficulty = 'easy') {
+  addAI() {
     if (this.players.length >= 2) {
       return { success: false, error: '방이 가득 찼습니다' };
     }
 
     this.players.push({
       socketId: 'AI_PLAYER',
-      nickname: difficulty === 'easy' ? 'AI (쉬움) 🤖' : difficulty === 'medium' ? 'AI (보통) 🤖' : 'AI (어려움) 🤖',
+      nickname: 'AI 🤖',
       color: this.players.length === 0 ? 'red' : 'yellow',
       isAI: true
     });
 
     this.hasAI = true;
-    this.aiDifficulty = difficulty;
     this.gameStatus = 'waiting'; // 돌림판 대기
 
     return { success: true };
@@ -327,37 +325,12 @@ class GameRoom {
     this.rematchRequests = [];
   }
 
-  // AI 착수 로직
+  // AI 착수 로직 - Minimax 알고리즘
   getAIMove() {
-    const difficulty = this.aiDifficulty;
-
-    if (difficulty === 'easy') {
-      return this.getRandomMove();
-    } else if (difficulty === 'medium') {
-      return this.getMediumMove();
-    } else {
-      return this.getHardMove();
-    }
-  }
-
-  // 쉬움: 랜덤 착수
-  getRandomMove() {
-    const availableColumns = [];
-    for (let col = 0; col < 7; col++) {
-      if (this.board[0][col] === null) {
-        availableColumns.push(col);
-      }
-    }
-    if (availableColumns.length === 0) return null;
-    return availableColumns[Math.floor(Math.random() * availableColumns.length)];
-  }
-
-  // 보통: 승리/방어 우선, 그 외 중앙 선호
-  getMediumMove() {
     const aiColor = this.players[this.currentPlayer].color;
     const opponentColor = aiColor === 'red' ? 'yellow' : 'red';
 
-    // 1. 내가 이길 수 있는 수 찾기
+    // 1. 즉시 승리 가능하면 승리
     for (let col = 0; col < 7; col++) {
       const row = this.getNextEmptyRow(col);
       if (row === -1) continue;
@@ -370,7 +343,7 @@ class GameRoom {
       this.board[row][col] = null;
     }
 
-    // 2. 상대가 이길 수 있는 수 막기
+    // 2. 상대 즉시 승리 막기
     for (let col = 0; col < 7; col++) {
       const row = this.getNextEmptyRow(col);
       if (row === -1) continue;
@@ -383,21 +356,169 @@ class GameRoom {
       this.board[row][col] = null;
     }
 
-    // 3. 중앙 선호
-    const centerColumns = [3, 2, 4, 1, 5, 0, 6];
-    for (const col of centerColumns) {
-      if (this.board[0][col] === null) {
-        return col;
+    // 3. Minimax로 최선의 수 찾기 (깊이 6)
+    let bestScore = -Infinity;
+    let bestCol = 3; // 기본값은 중앙
+    const depth = 6;
+
+    for (let col = 0; col < 7; col++) {
+      const row = this.getNextEmptyRow(col);
+      if (row === -1) continue;
+
+      this.board[row][col] = aiColor;
+      const score = this.minimax(depth - 1, false, aiColor, opponentColor, -Infinity, Infinity);
+      this.board[row][col] = null;
+
+      if (score > bestScore) {
+        bestScore = score;
+        bestCol = col;
       }
     }
 
-    return this.getRandomMove();
+    return bestCol;
   }
 
-  // 어려움: Minimax 알고리즘 (간단한 버전)
-  getHardMove() {
-    // 현재는 medium과 동일, 추후 업그레이드 가능
-    return this.getMediumMove();
+  // Minimax 알고리즘 with Alpha-Beta Pruning
+  minimax(depth, isMaximizing, aiColor, opponentColor, alpha, beta) {
+    // 터미널 체크
+    const winner = this.checkBoardWinner();
+    if (winner === aiColor) return 10000;
+    if (winner === opponentColor) return -10000;
+    if (this.isBoardFull()) return 0;
+    if (depth === 0) return this.evaluateBoard(aiColor, opponentColor);
+
+    if (isMaximizing) {
+      let maxScore = -Infinity;
+      for (let col = 0; col < 7; col++) {
+        const row = this.getNextEmptyRow(col);
+        if (row === -1) continue;
+
+        this.board[row][col] = aiColor;
+        const score = this.minimax(depth - 1, false, aiColor, opponentColor, alpha, beta);
+        this.board[row][col] = null;
+
+        maxScore = Math.max(maxScore, score);
+        alpha = Math.max(alpha, score);
+        if (beta <= alpha) break;
+      }
+      return maxScore;
+    } else {
+      let minScore = Infinity;
+      for (let col = 0; col < 7; col++) {
+        const row = this.getNextEmptyRow(col);
+        if (row === -1) continue;
+
+        this.board[row][col] = opponentColor;
+        const score = this.minimax(depth - 1, true, aiColor, opponentColor, alpha, beta);
+        this.board[row][col] = null;
+
+        minScore = Math.min(minScore, score);
+        beta = Math.min(beta, score);
+        if (beta <= alpha) break;
+      }
+      return minScore;
+    }
+  }
+
+  // 보드 평가 함수
+  evaluateBoard(aiColor, opponentColor) {
+    let score = 0;
+
+    // 위치별 가중치 (중앙이 높음)
+    const positionWeights = [
+      [3, 4, 5, 7, 5, 4, 3],
+      [4, 6, 8, 10, 8, 6, 4],
+      [5, 8, 11, 13, 11, 8, 5],
+      [5, 8, 11, 13, 11, 8, 5],
+      [4, 6, 8, 10, 8, 6, 4],
+      [3, 4, 5, 7, 5, 4, 3]
+    ];
+
+    // 위치 점수
+    for (let row = 0; row < 6; row++) {
+      for (let col = 0; col < 7; col++) {
+        if (this.board[row][col] === aiColor) {
+          score += positionWeights[row][col];
+        } else if (this.board[row][col] === opponentColor) {
+          score -= positionWeights[row][col];
+        }
+      }
+    }
+
+    // 연결 패턴 점수
+    score += this.evaluateConnections(aiColor, opponentColor);
+
+    return score;
+  }
+
+  // 연결 패턴 평가
+  evaluateConnections(aiColor, opponentColor) {
+    let score = 0;
+
+    // 가로, 세로, 대각선 모든 방향 체크
+    const directions = [
+      [0, 1],   // 가로
+      [1, 0],   // 세로
+      [1, 1],   // 대각선 \
+      [1, -1]   // 대각선 /
+    ];
+
+    for (let row = 0; row < 6; row++) {
+      for (let col = 0; col < 7; col++) {
+        for (const [dr, dc] of directions) {
+          const window = [];
+          for (let i = 0; i < 4; i++) {
+            const r = row + dr * i;
+            const c = col + dc * i;
+            if (r >= 0 && r < 6 && c >= 0 && c < 7) {
+              window.push(this.board[r][c]);
+            }
+          }
+
+          if (window.length === 4) {
+            score += this.scoreWindow(window, aiColor, opponentColor);
+          }
+        }
+      }
+    }
+
+    return score;
+  }
+
+  // 4칸 윈도우 점수 계산
+  scoreWindow(window, aiColor, opponentColor) {
+    let score = 0;
+    const aiCount = window.filter(c => c === aiColor).length;
+    const oppCount = window.filter(c => c === opponentColor).length;
+    const emptyCount = window.filter(c => c === null).length;
+
+    // AI 돌만 있는 경우
+    if (aiCount === 4) score += 100;
+    else if (aiCount === 3 && emptyCount === 1) score += 5;
+    else if (aiCount === 2 && emptyCount === 2) score += 2;
+
+    // 상대 돌만 있는 경우
+    if (oppCount === 3 && emptyCount === 1) score -= 4; // 상대 위협 막기
+
+    return score;
+  }
+
+  // 보드에서 승자 찾기
+  checkBoardWinner() {
+    for (let row = 0; row < 6; row++) {
+      for (let col = 0; col < 7; col++) {
+        const color = this.board[row][col];
+        if (color && this.checkWin(row, col, color)) {
+          return color;
+        }
+      }
+    }
+    return null;
+  }
+
+  // 보드가 가득 찼는지 확인
+  isBoardFull() {
+    return this.board[0].every(cell => cell !== null);
   }
 
   // 다음 빈 행 찾기
@@ -616,17 +737,17 @@ app.prepare().then(() => {
     });
 
     // AI 플레이어 추가
-    socket.on('addAI', ({ roomId, difficulty = 'easy' }) => {
+    socket.on('addAI', ({ roomId }) => {
       const room = rooms.get(roomId);
       if (!room) {
         socket.emit('error', { message: '방을 찾을 수 없습니다' });
         return;
       }
 
-      const result = room.addAI(difficulty);
+      const result = room.addAI();
       if (result.success) {
         io.to(roomId).emit('gameState', room.getState());
-        console.log(`AI player added to room ${roomId} with ${difficulty} difficulty`);
+        console.log(`AI player added to room ${roomId}`);
       } else {
         socket.emit('error', { message: result.error });
       }
