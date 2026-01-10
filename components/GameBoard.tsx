@@ -20,6 +20,13 @@ export default function GameBoard({ board, onColumnClick, isMyTurn, myColor, isD
   const [selectedColumn, setSelectedColumn] = useState<number | null>(null);
   const [isTouchDevice, setIsTouchDevice] = useState<boolean>(false);
 
+  // 디버깅용 - lastMove 출력
+  useEffect(() => {
+    if (lastMove) {
+      console.log('lastMove:', lastMove);
+    }
+  }, [lastMove]);
+
   // 터치 디바이스 감지
   useEffect(() => {
     setIsTouchDevice('ontouchstart' in window);
@@ -65,7 +72,8 @@ export default function GameBoard({ board, onColumnClick, isMyTurn, myColor, isD
 
   // 마지막 착수 위치인지 확인
   const isLastMove = (row: number, col: number): boolean => {
-    return lastMove !== null && lastMove !== undefined && lastMove.row === row && lastMove.col === col;
+    if (!lastMove) return false;
+    return lastMove.row === row && lastMove.col === col;
   };
 
   const getCellColor = (value: CellValue): string => {

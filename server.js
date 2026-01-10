@@ -171,7 +171,7 @@ class GameRoom {
     this.board[row][column] = color;
 
     // 마지막 착수 위치 저장
-    this.lastMove = { row, column };
+    this.lastMove = { row, col: column };
 
     // 승리 체크
     const winningPositions = this.checkWin(row, column, color);
