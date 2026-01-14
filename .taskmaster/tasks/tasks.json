@@ -1,0 +1,310 @@
+{
+  "master": {
+    "tasks": [
+      {
+        "id": "1",
+        "title": "구글 로그인 인증 시스템 구축",
+        "description": "Google OAuth 2.0을 사용한 사용자 인증 시스템 구현. NextAuth.js 또는 Firebase Authentication을 사용하여 로그인/로그아웃, 세션 관리, 자동 로그인 기능 개발.",
+        "status": "pending",
+        "priority": "high",
+        "dependencies": [],
+        "subtasks": [
+          {
+            "id": 1.1,
+            "title": "NextAuth.js 설치 및 설정",
+            "description": "NextAuth.js 라이브러리 설치 및 기본 설정 파일 생성",
+            "status": "pending",
+            "parentId": "undefined"
+          },
+          {
+            "id": 1.2,
+            "title": "Google OAuth 2.0 Provider 설정",
+            "description": "Google Cloud Console에서 OAuth 2.0 클라이언트 ID 생성 및 환경변수 설정",
+            "status": "pending",
+            "parentId": "undefined"
+          },
+          {
+            "id": 1.3,
+            "title": "로그인 UI 컴포넌트 개발",
+            "description": "구글 로그인 버튼 및 로그인 페이지 UI 구현",
+            "status": "pending",
+            "parentId": "undefined"
+          },
+          {
+            "id": 1.4,
+            "title": "세션 관리 및 미들웨어 구현",
+            "description": "세션 저장, 토큰 관리, 자동 로그인 기능 구현",
+            "status": "pending",
+            "parentId": "undefined"
+          },
+          {
+            "id": 1.5,
+            "title": "로그아웃 기능 구현",
+            "description": "로그아웃 버튼 및 세션 종료 로직 구현",
+            "status": "pending",
+            "parentId": "undefined"
+          }
+        ]
+      },
+      {
+        "id": "2",
+        "title": "데이터베이스 스키마 설계 및 구축",
+        "description": "User, GameResult, UserStats, Title 모델을 포함한 데이터베이스 스키마 설계. Firebase Firestore, MongoDB, 또는 Supabase 중 선택하여 구축.",
+        "status": "done",
+        "priority": "high",
+        "dependencies": [
+          "1"
+        ],
+        "subtasks": [
+          {
+            "id": 2.1,
+            "title": "데이터베이스 플랫폼 선택 및 설정",
+            "description": "Firebase Firestore, MongoDB, Supabase 중 선택하고 프로젝트 설정",
+            "status": "pending",
+            "parentId": "undefined"
+          },
+          {
+            "id": 2.2,
+            "title": "User 모델 스키마 설계",
+            "description": "사용자 정보 (id, googleId, email, displayName, photoURL, 칭호 등) 스키마 정의",
+            "status": "pending",
+            "parentId": "undefined"
+          },
+          {
+            "id": 2.3,
+            "title": "GameResult 모델 스키마 설계",
+            "description": "게임 결과 (gameMode, result, opponentType, timestamp 등) 스키마 정의",
+            "status": "pending",
+            "parentId": "undefined"
+          },
+          {
+            "id": 2.4,
+            "title": "UserStats 모델 스키마 설계",
+            "description": "사용자 통계 (승/무/패, 승률, 연승 등) 스키마 정의",
+            "status": "pending",
+            "parentId": "undefined"
+          },
+          {
+            "id": 2.5,
+            "title": "Title 모델 스키마 설계",
+            "description": "칭호 정보 (name, description, category, condition 등) 스키마 정의",
+            "status": "pending",
+            "parentId": "undefined"
+          },
+          {
+            "id": 2.6,
+            "title": "데이터베이스 연결 및 헬퍼 함수 구현",
+            "description": "DB 연결 설정 및 CRUD 헬퍼 함수 작성",
+            "status": "pending",
+            "parentId": "undefined"
+          }
+        ],
+        "updatedAt": "2026-01-14T09:59:26.514Z"
+      },
+      {
+        "id": "3",
+        "title": "사용자 프로필 시스템 개발",
+        "description": "로그인한 사용자의 프로필 정보 저장 및 표시. 이름, 이메일, 프로필 사진, 대표 칭호 표시 기능 구현.",
+        "status": "pending",
+        "priority": "medium",
+        "dependencies": [
+          "1",
+          "2"
+        ],
+        "subtasks": []
+      },
+      {
+        "id": "4",
+        "title": "게임 결과 저장 로직 구현",
+        "description": "게임 종료 시 결과를 데이터베이스에 저장하는 로직 개발. 게임 모드, 결과(승/무/패), 상대 타입, 소요 시간 등 기록.",
+        "status": "pending",
+        "priority": "high",
+        "dependencies": [
+          "2"
+        ],
+        "subtasks": []
+      },
+      {
+        "id": "5",
+        "title": "게임 통계 계산 시스템 개발",
+        "description": "사용자의 게임 전적을 집계하여 승률 계산. AI 연습/랭킹, 플레이어 랭킹 모드별 통계 분리 계산.",
+        "status": "pending",
+        "priority": "high",
+        "dependencies": [
+          "4"
+        ],
+        "subtasks": []
+      },
+      {
+        "id": "6",
+        "title": "게임 모드 시스템 구현",
+        "description": "연습 모드와 랭킹 모드 구분. 연습 모드에는 무르기 버튼과 시간 제한 제거, 랭킹 모드는 30초 제한 및 전적 기록 기능 추가.",
+        "status": "pending",
+        "priority": "high",
+        "dependencies": [
+          "4"
+        ],
+        "subtasks": [
+          {
+            "id": 6.1,
+            "title": "게임 모드 선택 UI 개발",
+            "description": "AI 대전(연습/랭킹), 플레이어 대전 모드 선택 화면 구현",
+            "status": "pending",
+            "parentId": "undefined"
+          },
+          {
+            "id": 6.2,
+            "title": "연습 모드 - 무르기 버튼 구현",
+            "description": "이전 수로 돌아가는 무르기 기능 개발",
+            "status": "pending",
+            "parentId": "undefined"
+          },
+          {
+            "id": 6.3,
+            "title": "연습 모드 - 시간 제한 제거",
+            "description": "연습 모드에서 30초 타이머 비활성화",
+            "status": "pending",
+            "parentId": "undefined"
+          },
+          {
+            "id": 6.4,
+            "title": "랭킹 모드 - 30초 타이머 유지",
+            "description": "랭킹 모드에서 턴당 30초 시간 제한 적용",
+            "status": "pending",
+            "parentId": "undefined"
+          },
+          {
+            "id": 6.5,
+            "title": "게임 모드별 결과 처리 분기",
+            "description": "연습 모드는 통계에 미반영, 랭킹 모드는 통계 반영 로직 구현",
+            "status": "pending",
+            "parentId": "undefined"
+          }
+        ]
+      },
+      {
+        "id": "7",
+        "title": "리더보드 UI 및 기능 개발",
+        "description": "전체 순위 표시, 승률 기준 정렬, 페이지네이션, 검색 기능이 포함된 리더보드 페이지 구현. 실시간 순위 업데이트 기능 추가.",
+        "status": "pending",
+        "priority": "medium",
+        "dependencies": [
+          "5"
+        ],
+        "subtasks": []
+      },
+      {
+        "id": "8",
+        "title": "개인 통계 페이지 개발",
+        "description": "사용자별 상세 통계 페이지. 총 게임 수, 승/무/패 횟수, 승률을 그래프/차트로 시각화. AI 대전과 플레이어 대전 통계 분리 표시.",
+        "status": "pending",
+        "priority": "medium",
+        "dependencies": [
+          "5"
+        ],
+        "subtasks": []
+      },
+      {
+        "id": "9",
+        "title": "칭호 데이터 및 조건 시스템 개발",
+        "description": "30개 이상의 칭호 데이터 생성. 승률, AI 승리 수, 연승, 총 게임 수, 특수 조건 기반 칭호 개발. 칭호 획득 조건 검증 로직 구현.",
+        "status": "pending",
+        "priority": "medium",
+        "dependencies": [
+          "5"
+        ],
+        "subtasks": [
+          {
+            "id": 9.1,
+            "title": "승률 기반 칭호 데이터 생성 (10개)",
+            "description": "초보자, 숙련자, 마스터, 그랜드마스터 등 승률별 칭호 데이터 작성",
+            "status": "pending",
+            "parentId": "undefined"
+          },
+          {
+            "id": 9.2,
+            "title": "AI 승리 수 기반 칭호 데이터 생성 (8개)",
+            "description": "AI 헌터, AI 정복자 등 AI 승리 횟수별 칭호 데이터 작성",
+            "status": "pending",
+            "parentId": "undefined"
+          },
+          {
+            "id": 9.3,
+            "title": "연승 기반 칭호 데이터 생성 (6개)",
+            "description": "연승 행진, 무적의 전사 등 연승 기록별 칭호 데이터 작성",
+            "status": "pending",
+            "parentId": "undefined"
+          },
+          {
+            "id": 9.4,
+            "title": "총 게임 수 기반 칭호 데이터 생성 (6개)",
+            "description": "게임 중독자, 베테랑 등 총 플레이 게임 수별 칭호 데이터 작성",
+            "status": "pending",
+            "parentId": "undefined"
+          },
+          {
+            "id": 9.5,
+            "title": "특수 조건 칭호 데이터 생성 (5개 이상)",
+            "description": "완벽주의자(무패 10연승), 역전의 명수 등 특수 조건 칭호 데이터 작성",
+            "status": "pending",
+            "parentId": "undefined"
+          },
+          {
+            "id": 9.6,
+            "title": "칭호 획득 조건 검증 로직 구현",
+            "description": "각 칭호별 조건을 검사하고 자동으로 부여하는 시스템 개발",
+            "status": "pending",
+            "parentId": "undefined"
+          }
+        ]
+      },
+      {
+        "id": "10",
+        "title": "칭호 UI 및 알림 시스템 개발",
+        "description": "칭호 획득 알림 및 축하 애니메이션. 프로필 및 리더보드에 칭호 표시. 칭호 컬렉션 페이지 및 대표 칭호 설정 기능 구현.",
+        "status": "pending",
+        "priority": "low",
+        "dependencies": [
+          "9"
+        ],
+        "subtasks": []
+      },
+      {
+        "id": "11",
+        "title": "연승 시스템 개발",
+        "description": "AI 대전 연승과 랭킹 모드 연승 카운터 구현. 프로필에 현재 연승 및 최고 연승 기록 표시. 연승 끊김 알림 기능 추가.",
+        "status": "pending",
+        "priority": "medium",
+        "dependencies": [
+          "4"
+        ],
+        "subtasks": []
+      },
+      {
+        "id": "12",
+        "title": "통합 테스트 및 최적화",
+        "description": "전체 기능 통합 테스트. 성능 최적화, 버그 수정, UI/UX 개선. 실시간 업데이트 성능 검증.",
+        "status": "pending",
+        "priority": "low",
+        "dependencies": [
+          "3",
+          "6",
+          "7",
+          "8",
+          "10",
+          "11"
+        ],
+        "subtasks": []
+      }
+    ],
+    "metadata": {
+      "version": "1.0.0",
+      "lastModified": "2026-01-14T09:59:26.516Z",
+      "taskCount": 12,
+      "completedCount": 1,
+      "tags": [
+        "master"
+      ]
+    }
+  }
+}

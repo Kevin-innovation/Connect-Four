@@ -1,0 +1,167 @@
+# Connect-Four 게임 확장 기능 개발 PRD
+
+## 프로젝트 개요
+Connect-Four 게임에 사용자 인증, 게임 통계, 랭킹 시스템, 칭호 시스템, 게임 모드 등을 추가하여 더욱 풍부한 게임 경험을 제공합니다.
+
+## 목표
+- 사용자 인증 시스템 구축
+- 게임 통계 및 리더보드 시스템 구현
+- 칭호 및 보상 시스템 개발
+- 다양한 게임 모드 제공
+- 사용자 프로필 및 전적 관리
+
+## 주요 기능
+
+### 1. 구글 로그인 기능
+**목적**: 사용자가 구글 계정으로 로그인하여 게임 데이터를 저장하고 관리할 수 있도록 합니다.
+
+**요구사항**:
+- Google OAuth 2.0 인증 연동
+- 로그인 UI/UX 구현
+- 세션 관리 및 토큰 저장
+- 로그아웃 기능
+- 사용자 프로필 정보 저장 (이름, 이메일, 프로필 사진)
+- 자동 로그인 기능 (Remember Me)
+- 로그인 상태에 따른 UI 분기 처리
+
+### 2. 게임 통계 및 리더보드 시스템
+**목적**: 사용자의 게임 전적을 기록하고 순위를 매겨 경쟁심을 유발합니다.
+
+**요구사항**:
+- 게임 결과 데이터베이스 저장 (승/무/패)
+- 승률 계산 로직 구현
+- 리더보드 UI 구현
+  - 전체 순위 표시
+  - 승률 기준 정렬
+  - 페이지네이션
+  - 검색 기능
+- 개인 통계 페이지
+  - 총 게임 수
+  - 승/무/패 횟수
+  - 승률 퍼센테이지
+  - 그래프/차트로 시각화
+- AI 대전 통계와 플레이어 대전 통계 분리
+- 실시간 순위 업데이트
+
+### 3. 칭호 시스템
+**목적**: 사용자의 성취도를 인정하고 게임의 재미 요소를 증가시킵니다.
+
+**요구사항**:
+- 30개 이상의 다양한 칭호 개발
+  - 승률 기반 칭호 (예: "초보자", "숙련자", "마스터", "그랜드마스터")
+  - AI 승리 수 기반 칭호 (예: "AI 헌터", "AI 정복자")
+  - 연승 기반 칭호 (예: "연승 행진", "무적의 전사")
+  - 총 게임 수 기반 칭호 (예: "게임 중독자", "베테랑")
+  - 특수 조건 칭호 (예: "완벽주의자" - 무패 10연승 등)
+- 칭호 획득 조건 시스템
+- 칭호 알림 및 축하 애니메이션
+- 프로필에 칭호 표시
+- 리더보드에 칭호 표시
+- 칭호 컬렉션 페이지
+- 대표 칭호 설정 기능
+
+### 4. 게임 모드 시스템
+**목적**: 다양한 게임 모드를 제공하여 사용자 경험을 향상시킵니다.
+
+**요구사항**:
+- 게임 모드 선택 UI
+  - AI 대전
+    - 연습 모드
+    - 랭킹 모드
+  - 플레이어 대전 (랭킹 모드)
+
+**연습 모드 특징**:
+- 무르기 버튼 추가
+- 30초 시간 제한 제거
+- 랭킹/통계에 반영되지 않음
+- AI 난이도 선택 가능
+
+**랭킹 모드 특징**:
+- 30초 시간 제한
+- 승률 및 리더보드에 반영
+- 무르기 불가
+- 전적 기록
+
+### 5. 프로필 연승 시스템
+**목적**: 현재 연승 기록을 표시하여 성취감을 제공합니다.
+
+**요구사항**:
+- 연승 카운터 구현
+- 연승 타입 구분
+  - AI 대전 연승
+  - 랭킹 모드 (플레이어 대전) 연승
+- 프로필 페이지에 연승 표시
+  - "AI 대전 X연승 중"
+  - "랭킹 모드 X연승 중"
+- 최고 연승 기록 저장 및 표시
+- 연승이 끊길 때 알림
+- 연승 기록 히스토리
+
+## 기술 스택 고려사항
+- 프론트엔드: Next.js, React, TypeScript
+- 인증: NextAuth.js 또는 Firebase Authentication
+- 데이터베이스: Firebase Firestore, MongoDB, 또는 Supabase
+- 상태 관리: React Context API 또는 Zustand
+- UI: Tailwind CSS (기존 사용 중)
+- 실시간 기능: Socket.io (플레이어 대전용)
+
+## 데이터 모델
+
+### User
+- id: string
+- googleId: string
+- email: string
+- displayName: string
+- photoURL: string
+- createdAt: timestamp
+- currentTitle: string (대표 칭호)
+- unlockedTitles: string[] (획득한 칭호 목록)
+
+### GameResult
+- id: string
+- userId: string
+- gameMode: 'ai-practice' | 'ai-ranked' | 'player-ranked'
+- result: 'win' | 'draw' | 'lose'
+- opponentType: 'ai' | 'player'
+- opponentId?: string (플레이어 대전인 경우)
+- timestamp: timestamp
+- duration: number (게임 소요 시간)
+
+### UserStats
+- userId: string
+- aiPractice: { wins, draws, losses, winRate }
+- aiRanked: { wins, draws, losses, winRate }
+- playerRanked: { wins, draws, losses, winRate }
+- currentStreak: { type, count }
+- bestStreak: { type, count, date }
+- totalGames: number
+- lastUpdated: timestamp
+
+### Title
+- id: string
+- name: string
+- description: string
+- category: 'winRate' | 'aiWins' | 'streak' | 'total' | 'special'
+- condition: object (획득 조건)
+- icon: string
+- rarity: 'common' | 'rare' | 'epic' | 'legendary'
+
+## 개발 우선순위
+1. 구글 로그인 기능 (기반 인프라)
+2. 데이터베이스 스키마 설계 및 구축
+3. 게임 결과 저장 로직
+4. 게임 통계 계산 및 표시
+5. 게임 모드 시스템 (연습/랭킹 모드)
+6. 리더보드 UI 및 기능
+7. 칭호 시스템
+8. 연승 시스템
+9. 프로필 페이지 완성
+10. 최적화 및 버그 수정
+
+## 성공 지표
+- 사용자 로그인율
+- 일일 활성 사용자 수
+- 평균 게임 세션 시간
+- 칭호 획득률
+- 리더보드 참여율
+- 사용자 만족도

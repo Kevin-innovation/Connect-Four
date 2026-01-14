@@ -16,7 +16,19 @@
       "Bash(findstr:*)",
       "WebFetch(domain:www.figma.com)",
       "Bash(dir:*)",
-      "Bash(npm run build:*)"
+      "Bash(npm run build:*)",
+      "Bash(echo:*)",
+      "WebSearch",
+      "Bash(claude mcp add:*)",
+      "Bash(claude mcp list:*)",
+      "Bash(where:*)",
+      "Bash(claude mcp remove:*)",
+      "mcp__task-master__parse_prd",
+      "mcp__task-master__get_tasks",
+      "mcp__task-master__expand_task",
+      "Bash(timeout /t 5 /nobreak)",
+      "Bash(git tag:*)",
+      "mcp__task-master__set_task_status"
     ]
   }
 }
