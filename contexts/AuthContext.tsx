@@ -1,7 +1,7 @@
 'use client';
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { supabase, DbUser } from '@/lib/supabase';
+import { supabase, DbUser, isSupabaseConfigured } from '@/lib/supabase';
 import { User as SupabaseUser, Session } from '@supabase/supabase-js';
 
 interface User {
@@ -197,6 +197,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const signInWithGoogle = async () => {
+    if (!isSupabaseConfigured()) {
+      alert('Supabase가 설정되지 않았습니다. 관리자에게 문의하세요.');
+      return;
+    }
+
     try {
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
@@ -218,35 +223,53 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const signInWithEmail = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-
-    if (error) {
-      return { error: error.message };
+    if (!isSupabaseConfigured()) {
+      return { error: 'Supabase가 설정되지 않았습니다. 관리자에게 문의하세요.' };
     }
 
-    return { error: null };
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) {
+        return { error: error.message };
+      }
+
+      return { error: null };
+    } catch (err) {
+      console.error('Sign in error:', err);
+      return { error: '네트워크 오류가 발생했습니다. 잠시 후 다시 시도해주세요.' };
+    }
   };
 
   const signUpWithEmail = async (email: string, password: string, nickname: string) => {
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: {
-          full_name: nickname,
-          name: nickname,
-        },
-      },
-    });
-
-    if (error) {
-      return { error: error.message };
+    if (!isSupabaseConfigured()) {
+      return { error: 'Supabase가 설정되지 않았습니다. 관리자에게 문의하세요.' };
     }
 
-    return { error: null };
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            full_name: nickname,
+            name: nickname,
+          },
+        },
+      });
+
+      if (error) {
+        return { error: error.message };
+      }
+
+      return { error: null };
+    } catch (err) {
+      console.error('Sign up error:', err);
+      return { error: '네트워크 오류가 발생했습니다. 잠시 후 다시 시도해주세요.' };
+    }
   };
 
   const signOut = async () => {
