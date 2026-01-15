@@ -131,8 +131,8 @@ export default function ProfilePage() {
               <div
                 className="inline-block mt-1 px-3 py-1 rounded-full text-sm font-medium"
                 style={{
-                  backgroundColor: `${currentTitle.color_hex}20`,
-                  color: currentTitle.color_hex,
+                  backgroundColor: currentTitle.color_hex ? `${currentTitle.color_hex}20` : undefined,
+                  color: currentTitle.color_hex || undefined,
                 }}
               >
                 {currentTitle.display_name}

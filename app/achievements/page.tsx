@@ -47,8 +47,7 @@ export default function AchievementsPage() {
         supabase
           .from('user_titles')
           .select('*')
-          .eq('user_id', user.id)
-          .eq('is_active', true),
+          .eq('user_id', user.id),
         supabase
           .from('user_statistics')
           .select('*')
@@ -110,7 +109,7 @@ export default function AchievementsPage() {
         progress,
         target,
         unlocked: !!userTitle,
-        unlockedAt: userTitle?.earned_at ? new Date(userTitle.earned_at).toLocaleDateString('ko-KR') : undefined,
+        unlockedAt: userTitle?.acquired_at ? new Date(userTitle.acquired_at).toLocaleDateString('ko-KR') : undefined,
       };
     });
 

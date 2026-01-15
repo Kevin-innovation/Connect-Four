@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase, DbLeaderboardCache } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -11,11 +11,7 @@ export default function RankingPage() {
   const [myRanking, setMyRanking] = useState<DbLeaderboardCache | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    fetchRankings();
-  }, [selectedTab, user?.id]);
-
-  const fetchRankings = async () => {
+  const fetchRankings = useCallback(async () => {
     setIsLoading(true);
 
     // Fetch top 50 rankings (game_mode_id = 2 is ai-ranked)
@@ -47,7 +43,11 @@ export default function RankingPage() {
     }
 
     setIsLoading(false);
-  };
+  }, [user?.id]);
+
+  useEffect(() => {
+    fetchRankings();
+  }, [fetchRankings]);
 
   const getRankBadge = (rank: number) => {
     if (rank === 1) return { bg: 'bg-yellow-400', text: 'text-yellow-900', icon: '🥇' };
@@ -129,7 +129,7 @@ export default function RankingPage() {
                         )}
                       </div>
                       <div className="text-xs text-gray-500">
-                        {rankedUser.wins}승 {rankedUser.losses}패 {rankedUser.draws > 0 && `${rankedUser.draws}무`}
+                        {rankedUser.wins}승 / {rankedUser.total_games}게임
                       </div>
                     </div>
 
@@ -160,7 +160,7 @@ export default function RankingPage() {
                   <div>
                     <div className="font-bold text-gray-800">{myRanking.display_name}</div>
                     <div className="text-xs text-gray-500">
-                      {myRanking.wins}승 {myRanking.losses}패
+                      {myRanking.wins}승 / {myRanking.total_games}게임
                     </div>
                   </div>
                 </div>

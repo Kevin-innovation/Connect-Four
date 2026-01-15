@@ -42,12 +42,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Fetch or create user in our database
   const fetchOrCreateDbUser = async (supabaseUser: SupabaseUser) => {
     try {
+      console.log('fetchOrCreateDbUser called with:', supabaseUser.id, supabaseUser.email);
+
       // First try to fetch existing user
       const { data: existingUser, error: fetchError } = await supabase
         .from('users')
         .select('*')
         .eq('id', supabaseUser.id)
         .single();
+
+      console.log('Fetch existing user result:', { existingUser, fetchError });
 
       if (existingUser) {
         setDbUser(existingUser);
@@ -69,9 +73,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       // If user doesn't exist, create new one
+      // Use auth user id as google_id fallback for email users
       const newUser = {
         id: supabaseUser.id,
-        google_id: supabaseUser.user_metadata?.sub || supabaseUser.id,
+        google_id: supabaseUser.user_metadata?.sub || `email_${supabaseUser.id}`,
         email: supabaseUser.email || '',
         email_verified: supabaseUser.email_confirmed_at ? true : false,
         display_name: supabaseUser.user_metadata?.full_name ||
@@ -85,14 +90,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         last_login_at: new Date().toISOString(),
       };
 
+      console.log('Attempting to create user:', newUser);
+
       const { data: createdUser, error: createError } = await supabase
         .from('users')
         .insert(newUser)
         .select()
         .single();
 
+      console.log('Create user result:', { createdUser, createError });
+
       if (createError) {
         console.error('Error creating user:', createError);
+        // Still set basic user info even if DB insert fails
+        setUser({
+          id: supabaseUser.id,
+          nickname: newUser.display_name,
+          email: newUser.email,
+          photoUrl: newUser.photo_url || undefined,
+        });
         return;
       }
 
@@ -181,15 +197,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const signInWithGoogle = async () => {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
-      },
-    });
+    try {
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`,
+        },
+      });
 
-    if (error) {
-      console.error('Google sign in error:', error);
+      console.log('Google OAuth response:', { data, error });
+
+      if (error) {
+        console.error('Google sign in error:', error);
+        alert(`Google 로그인 오류: ${error.message}`);
+      }
+    } catch (err) {
+      console.error('Google sign in exception:', err);
+      alert('Google 로그인 중 오류가 발생했습니다.');
     }
   };
 
