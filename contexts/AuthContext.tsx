@@ -180,10 +180,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        console.log('Auth state changed:', event);
+
         if (event === 'SIGNED_IN' && session?.user) {
-          await fetchOrCreateDbUser(session.user);
+          // 모달 즉시 닫기 (DB 작업 전)
           setIsLoginModalOpen(false);
           setIsSignupModalOpen(false);
+
+          // DB 작업은 별도로 처리 (실패해도 로그인은 유지)
+          try {
+            await fetchOrCreateDbUser(session.user);
+          } catch (err) {
+            console.error('Failed to fetch/create DB user:', err);
+            // 기본 사용자 정보라도 설정
+            setUser({
+              id: session.user.id,
+              nickname: session.user.user_metadata?.full_name ||
+                        session.user.email?.split('@')[0] || 'Player',
+              email: session.user.email,
+            });
+          }
         } else if (event === 'SIGNED_OUT') {
           setUser(null);
           setDbUser(null);

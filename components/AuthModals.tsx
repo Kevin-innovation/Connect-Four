@@ -17,16 +17,25 @@ export function LoginModal() {
     setIsLoading(true);
     setError('');
 
-    const result = await signInWithEmail(email, password);
+    try {
+      const result = await signInWithEmail(email, password);
 
-    if (result.error) {
-      setError(result.error === 'Invalid login credentials'
-        ? '이메일 또는 비밀번호가 올바르지 않습니다.'
-        : result.error
-      );
+      if (result.error) {
+        setError(result.error === 'Invalid login credentials'
+          ? '이메일 또는 비밀번호가 올바르지 않습니다.'
+          : result.error
+        );
+        setIsLoading(false);
+      } else {
+        // 로그인 성공 - 모달 즉시 닫기
+        closeLoginModal();
+        // 로딩 상태는 AuthContext의 onAuthStateChange가 처리
+      }
+    } catch (err) {
+      console.error('Login error:', err);
+      setError('로그인 중 오류가 발생했습니다.');
+      setIsLoading(false);
     }
-
-    setIsLoading(false);
   };
 
   const handleGoogleLogin = async () => {
