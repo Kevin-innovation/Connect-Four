@@ -149,6 +149,7 @@ export default function ProfilePage() {
   const draws = stats?.draws || 0;
   const winRate = stats?.win_rate || 0;
   const currentStreak = stats?.current_streak || 0;
+  const currentStreakType = stats?.current_streak_type || null;
   const bestStreak = stats?.best_win_streak || 0;
   const rank = ranking?.rank || '-';
 
@@ -242,8 +243,8 @@ export default function ProfilePage() {
             </div>
           )}
 
-          {/* Current Streak */}
-          {currentStreak > 0 && (
+          {/* Current Streak - 연승일 때만 표시 */}
+          {currentStreak > 0 && currentStreakType === 'win' && (
             <div className="bg-orange-50 rounded-xl p-4 border-2 border-orange-200 mb-6">
               <div className="flex items-center justify-between">
                 <div>
