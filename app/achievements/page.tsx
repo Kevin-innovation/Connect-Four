@@ -111,28 +111,34 @@ export default function AchievementsPage() {
       if (stats) {
         switch (condition.type) {
           case 'win_rate':
-            progress = stats.win_rate;
+            // 승률 업적: progress는 현재 승률, target은 최소 요구 승률
+            progress = stats.win_rate || 0;
             target = condition.min || 0;
             break;
-          case 'total_wins':
-            progress = stats.wins;
-            target = condition.count || 1;
+          case 'ai_wins':
+            // AI 승리 업적: progress는 현재 승수, target은 최소 요구 승수
+            progress = stats.wins || 0;
+            target = condition.min || 1;
+            break;
+          case 'streak':
+            // 연승 업적: progress는 최고 연승, target은 요구 연승
+            progress = stats.best_win_streak || 0;
+            target = condition.min || 1;
             break;
           case 'total_games':
-            progress = stats.total_games;
-            target = condition.count || 1;
+            // 총 게임 업적: progress는 총 게임수, target은 요구 게임수
+            progress = stats.total_games || 0;
+            target = condition.min || 1;
             break;
-          case 'win_streak':
-            progress = stats.best_win_streak;
-            target = condition.streak || 1;
-            break;
-          case 'ai_wins':
-            progress = stats.wins; // Simplified - all wins count for AI mode
-            target = condition.count || 1;
+          case 'draws':
+            // 무승부 업적
+            progress = stats.draws || 0;
+            target = condition.min || 1;
             break;
           default:
+            // 특수 업적들 (측정 불가한 것들)
             progress = 0;
-            target = 1;
+            target = condition.min || 1;
         }
       }
 
@@ -174,9 +180,9 @@ export default function AchievementsPage() {
   const getCategoryIcon = (category: string) => {
     switch (category) {
       case 'win_rate': return '📊';
-      case 'total_wins': return '🏆';
-      case 'win_streak': return '🔥';
       case 'ai_wins': return '🤖';
+      case 'streak': return '🔥';
+      case 'total_games': return '🎮';
       case 'special': return '⭐';
       default: return '🎯';
     }
@@ -185,9 +191,9 @@ export default function AchievementsPage() {
   const categories = [
     { id: 'all', label: '전체' },
     { id: 'win_rate', label: '승률' },
-    { id: 'total_wins', label: '승리' },
-    { id: 'win_streak', label: '연승' },
     { id: 'ai_wins', label: 'AI' },
+    { id: 'streak', label: '연승' },
+    { id: 'total_games', label: '게임수' },
     { id: 'special', label: '특별' },
   ];
 
