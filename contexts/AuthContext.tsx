@@ -227,11 +227,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  // Track if initial auth check is done
+  const initialAuthDoneRef = useRef(false);
+
   // Initialize auth state
   useEffect(() => {
     let mounted = true;
 
     const initAuth = async () => {
+      // Skip if already initialized (prevents re-init on navigation)
+      if (initialAuthDoneRef.current && userRef.current) {
+        console.log('Auth already initialized, skipping...');
+        setIsLoading(false);
+        return;
+      }
+
       try {
         // First try getSession() for quick cached session check
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
@@ -258,6 +268,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             await fetchOrCreateDbUser(authUser);
           }
         }
+
+        initialAuthDoneRef.current = true;
       } catch (error) {
         console.error('Error initializing auth:', error);
       } finally {

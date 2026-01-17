@@ -27,6 +27,9 @@ export default function RankingPage() {
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
   const mountedRef = useRef(true);
 
+  // Track current fetch to prevent race conditions
+  const fetchIdRef = useRef(0);
+
   useEffect(() => {
     mountedRef.current = true;
     return () => {
@@ -37,6 +40,8 @@ export default function RankingPage() {
   useEffect(() => {
     const fetchRankings = async () => {
       if (!mountedRef.current) return;
+
+      const currentFetchId = ++fetchIdRef.current;
       setIsLoading(true);
 
       try {
@@ -53,7 +58,8 @@ export default function RankingPage() {
           .eq('mode_key', gameModeKey)
           .single();
 
-        if (!mountedRef.current) return;
+        // Check if this fetch is still current
+        if (!mountedRef.current || currentFetchId !== fetchIdRef.current) return;
 
         const gameModeId = gameModeData?.id;
 
@@ -91,7 +97,8 @@ export default function RankingPage() {
 
         const { data: statsData, error } = await query;
 
-        if (!mountedRef.current) return;
+        // Check if this fetch is still current
+        if (!mountedRef.current || currentFetchId !== fetchIdRef.current) return;
 
         if (error) {
           console.error('Error fetching rankings:', error);
@@ -178,7 +185,8 @@ export default function RankingPage() {
 
             const { data: myStatsArray } = await myQuery;
 
-            if (!mountedRef.current) return;
+            // Check if this fetch is still current
+            if (!mountedRef.current || currentFetchId !== fetchIdRef.current) return;
 
             if (myStatsArray && myStatsArray.length > 0) {
               // Aggregate stats for 'all' tab
@@ -210,12 +218,13 @@ export default function RankingPage() {
         }
       } catch (err) {
         console.error('Error in fetchRankings:', err);
-        if (mountedRef.current) {
+        if (mountedRef.current && currentFetchId === fetchIdRef.current) {
           setRankings([]);
         }
       }
 
-      if (mountedRef.current) {
+      // Only update loading state if this is still the current fetch
+      if (mountedRef.current && currentFetchId === fetchIdRef.current) {
         setIsLoading(false);
         setLastUpdated(new Date());
       }
@@ -226,7 +235,7 @@ export default function RankingPage() {
     // 10초마다 자동 갱신
     const interval = setInterval(fetchRankings, 10000);
     return () => clearInterval(interval);
-  }, [user?.id, user?.nickname, selectedTab]);
+  }, [selectedTab]); // Only depend on selectedTab, user state handled separately
 
   const getRankBadge = (rank: number) => {
     if (rank === 1) return { bg: 'bg-yellow-400', text: 'text-yellow-900', icon: '🥇' };
