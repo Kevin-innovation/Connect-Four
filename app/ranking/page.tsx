@@ -24,6 +24,7 @@ export default function RankingPage() {
   const [rankings, setRankings] = useState<RankingData[]>([]);
   const [myRanking, setMyRanking] = useState<RankingData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
   const mountedRef = useRef(true);
 
   useEffect(() => {
@@ -82,10 +83,7 @@ export default function RankingPage() {
               )
             )
           `)
-          .gt('total_games', 0)
-          .order('win_rate', { ascending: false })
-          .order('wins', { ascending: false })
-          .limit(50);
+          .gt('total_games', 0);
 
         if (gameModeId && selectedTab !== 'all') {
           query = query.eq('game_mode_id', gameModeId);
@@ -102,15 +100,59 @@ export default function RankingPage() {
           return;
         }
 
+        // For 'all' tab, aggregate statistics by user
+        let aggregatedData: any[] = [];
+
+        if (selectedTab === 'all') {
+          // Group by user_id and sum statistics
+          const userMap = new Map<string, any>();
+
+          (statsData || []).forEach((stat: any) => {
+            const userId = stat.user_id;
+            if (userMap.has(userId)) {
+              const existing = userMap.get(userId);
+              existing.total_games += stat.total_games || 0;
+              existing.wins += stat.wins || 0;
+            } else {
+              userMap.set(userId, {
+                user_id: userId,
+                total_games: stat.total_games || 0,
+                wins: stat.wins || 0,
+                users: stat.users,
+              });
+            }
+          });
+
+          // Convert map to array and calculate win_rate
+          aggregatedData = Array.from(userMap.values()).map(stat => ({
+            ...stat,
+            win_rate: stat.total_games > 0 ? (stat.wins / stat.total_games) * 100 : 0,
+          }));
+        } else {
+          aggregatedData = (statsData || []).map((stat: any) => ({
+            ...stat,
+            win_rate: parseFloat(stat.win_rate) || 0,
+          }));
+        }
+
+        // Sort by win_rate then by wins
+        aggregatedData.sort((a, b) => {
+          if (b.win_rate !== a.win_rate) return b.win_rate - a.win_rate;
+          return b.wins - a.wins;
+        });
+
+        // Limit to top 50
+        aggregatedData = aggregatedData.slice(0, 50);
+
         // Transform and rank the data
-        const rankedData: RankingData[] = (statsData || []).map((stat: any, index: number) => ({
+        const rankedData: RankingData[] = aggregatedData.map((stat: any, index: number) => ({
           id: stat.user_id,
           user_id: stat.user_id,
           display_name: stat.users?.display_name || 'Unknown',
           photo_url: stat.users?.photo_url || null,
           total_games: stat.total_games,
           wins: stat.wins,
-          win_rate: parseFloat(stat.win_rate) || 0,
+          win_rate: stat.win_rate,
           current_title_name: stat.users?.titles?.display_name || null,
           current_title_color: stat.users?.titles?.color_hex || null,
           rank: index + 1,
@@ -134,23 +176,33 @@ export default function RankingPage() {
               myQuery = myQuery.eq('game_mode_id', gameModeId);
             }
 
-            const { data: myStatsData } = await myQuery.single();
+            const { data: myStatsArray } = await myQuery;
 
             if (!mountedRef.current) return;
 
-            if (myStatsData && myStatsData.total_games > 0) {
-              setMyRanking({
-                id: user.id,
-                user_id: user.id,
-                display_name: user.nickname || 'Unknown',
-                photo_url: null,
-                total_games: myStatsData.total_games,
-                wins: myStatsData.wins,
-                win_rate: parseFloat(myStatsData.win_rate) || 0,
-                current_title_name: null,
-                current_title_color: null,
-                rank: 51,
-              });
+            if (myStatsArray && myStatsArray.length > 0) {
+              // Aggregate stats for 'all' tab
+              const aggregated = myStatsArray.reduce((acc, stat) => ({
+                total_games: acc.total_games + (stat.total_games || 0),
+                wins: acc.wins + (stat.wins || 0),
+              }), { total_games: 0, wins: 0 });
+
+              if (aggregated.total_games > 0) {
+                setMyRanking({
+                  id: user.id,
+                  user_id: user.id,
+                  display_name: user.nickname || 'Unknown',
+                  photo_url: null,
+                  total_games: aggregated.total_games,
+                  wins: aggregated.wins,
+                  win_rate: aggregated.total_games > 0 ? (aggregated.wins / aggregated.total_games) * 100 : 0,
+                  current_title_name: null,
+                  current_title_color: null,
+                  rank: 51,
+                });
+              } else {
+                setMyRanking(null);
+              }
             } else {
               setMyRanking(null);
             }
@@ -165,10 +217,15 @@ export default function RankingPage() {
 
       if (mountedRef.current) {
         setIsLoading(false);
+        setLastUpdated(new Date());
       }
     };
 
     fetchRankings();
+
+    // 10초마다 자동 갱신
+    const interval = setInterval(fetchRankings, 10000);
+    return () => clearInterval(interval);
   }, [user?.id, user?.nickname, selectedTab]);
 
   const getRankBadge = (rank: number) => {
@@ -182,7 +239,14 @@ export default function RankingPage() {
     <div className="min-h-[calc(100vh-120px)] bg-gradient-to-br from-blue-500 to-purple-600">
       <div className="max-w-[500px] mx-auto px-4 py-4">
         <div className="bg-white rounded-2xl shadow-2xl p-4">
-          <h1 className="text-2xl font-bold text-gray-800 mb-4 text-center">랭킹</h1>
+          <div className="flex items-center justify-between mb-4">
+            <h1 className="text-2xl font-bold text-gray-800">랭킹</h1>
+            {lastUpdated && (
+              <span className="text-xs text-gray-400">
+                {lastUpdated.toLocaleTimeString('ko-KR')} 갱신
+              </span>
+            )}
+          </div>
 
           {/* Tab Selector */}
           <div className="flex bg-gray-100 rounded-lg p-1 mb-4">

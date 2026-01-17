@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, useRef, useCallback, ReactNode } from 'react';
 import { supabase, DbUser, isSupabaseConfigured } from '@/lib/supabase';
 import { User as SupabaseUser, Session } from '@supabase/supabase-js';
 
@@ -39,8 +39,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isSignupModalOpen, setIsSignupModalOpen] = useState(false);
 
+  // Ref to track if user is already being fetched/created (prevent race conditions)
+  const fetchingUserRef = useRef(false);
+  const userRef = useRef<User | null>(null);
+
+  // Keep userRef in sync with user state
+  useEffect(() => {
+    userRef.current = user;
+  }, [user]);
+
   // Fetch or create user in our database
   const fetchOrCreateDbUser = async (supabaseUser: SupabaseUser) => {
+    // Prevent concurrent fetches for the same user
+    if (fetchingUserRef.current) {
+      console.log('Already fetching user, skipping...');
+      return;
+    }
+
+    // If we already have this user loaded, skip
+    if (userRef.current?.id === supabaseUser.id) {
+      console.log('User already loaded, skipping...');
+      return;
+    }
+
+    fetchingUserRef.current = true;
+
     try {
       console.log('fetchOrCreateDbUser called with:', supabaseUser.id, supabaseUser.email);
 
@@ -177,6 +200,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     } catch (error) {
       console.error('Error in fetchOrCreateDbUser:', error);
+    } finally {
+      fetchingUserRef.current = false;
     }
   };
 
@@ -264,7 +289,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         } else if (event === 'INITIAL_SESSION' && session?.user) {
           // 초기 세션 로드 (페이지 새로고침 시)
           console.log('Initial session loaded for user:', session.user.email);
-          if (!user) {
+          // Use ref to check current user state (avoid stale closure)
+          if (!userRef.current) {
             await fetchOrCreateDbUser(session.user);
           }
         }
